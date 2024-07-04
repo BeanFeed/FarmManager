@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FarmManagerBackend", "FarmManagerBackend\FarmManagerBackend.csproj", "{84666B05-061D-477C-AE53-0660D1A75256}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAL", "DAL\DAL.csproj", "{0B86C155-296F-4BDC-9631-5E958CDA35CF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{84666B05-061D-477C-AE53-0660D1A75256}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{84666B05-061D-477C-AE53-0660D1A75256}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{84666B05-061D-477C-AE53-0660D1A75256}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B86C155-296F-4BDC-9631-5E958CDA35CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B86C155-296F-4BDC-9631-5E958CDA35CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B86C155-296F-4BDC-9631-5E958CDA35CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B86C155-296F-4BDC-9631-5E958CDA35CF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
