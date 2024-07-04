@@ -3,22 +3,33 @@ using DAL.Entities;
 using FarmManagerBackend.Exceptions;
 using FarmManagerBackend.Models.User;
 using FarmManagerBackend.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace FarmManagerBackend.Services;
 
 public class UserService : IUserService
 {
-    private readonly ManagerContext managerContext;
+    private readonly ManagerContext _managerContext;
+    private readonly IJwtService _jwtService;
     
-    public UserService(ManagerContext context)
+    public UserService(ManagerContext context, IJwtService jwtService)
     {
-        managerContext = context;
+        _managerContext = context;
+        _jwtService = jwtService;
     }
 
     #region AdminServices
 
     public async Task CreateUser(CreateUserModel userData)
     {
+        #region Check Existing User
+
+        User? eUser = await _managerContext.Users.Where(x => x.Name == userData.Name).FirstAsync();
+
+        if (eUser != null) throw new UserException("Name already used");
+
+        #endregion
+        
         User user = new User()
         {
             Name = userData.Name,
@@ -26,31 +37,31 @@ public class UserService : IUserService
             PassHash = BCrypt.Net.BCrypt.HashPassword(userData.Password)
         };
 
-        await managerContext.Users.AddAsync(user);
+        await _managerContext.Users.AddAsync(user);
 
-        await managerContext.SaveChangesAsync();
+        await _managerContext.SaveChangesAsync();
     }
 
     public async Task DeleteUser(int userId)
     {
         #region Get User
 
-        User? user = await managerContext.Users.FindAsync(userId);
+        User? user = await _managerContext.Users.FindAsync(userId);
 
         if (user is null) throw new UserException("Couldn't find user");
         
         #endregion
 
-        managerContext.Users.Remove(user);
+        _managerContext.Users.Remove(user);
 
-        await managerContext.SaveChangesAsync();
+        await _managerContext.SaveChangesAsync();
     }
 
     public async Task ChangeUserPassword(ChangeUserPasswordModel passwordData)
     {
         #region Get User
 
-        User? user = await managerContext.Users.FindAsync(passwordData.UserId);
+        User? user = await _managerContext.Users.FindAsync(passwordData.UserId);
 
         if (user is null) throw new UserException("Couldn't find user");
 
@@ -60,24 +71,52 @@ public class UserService : IUserService
 
         user.PassHash = BCrypt.Net.BCrypt.HashPassword(passwordData.NewPassword);
 
-        managerContext.Users.Update(user);
+        _managerContext.Users.Update(user);
         
         #endregion
 
-        await managerContext.SaveChangesAsync();
+        await _managerContext.SaveChangesAsync();
     }
 
     #endregion
     
 
-    public Task<string[]> Login(UserLoginModel userData)
+    public async Task<string[]> Login(UserLoginModel userData)
     {
-        throw new NotImplementedException();
+        #region Get User
+
+        User? user = await _managerContext.Users.Where(x => x.Name == userData.Name).FirstAsync();
+
+        if (user is null) throw new UserException("User not found");
+
+        #endregion
+
+        #region Check Password
+
+        if (!BCrypt.Net.BCrypt.Verify(userData.Password, user.PassHash)) throw new UserException("Invalid Password");
+
+        #endregion
+
+        var tokens = _jwtService.EncodeToken(user);
+
+        return tokens;
     }
 
-    public Task<string[]> Refresh(string rToken)
+    public async Task<string[]> Refresh(string rToken)
     {
-        throw new NotImplementedException();
+        if (!await _jwtService.IsRefreshValid(rToken)) throw new UserException("Session Invalid");
+
+        User user;
+        try
+        {
+            user = await _jwtService.DecodeRefreshToken(rToken);
+        }
+        catch (UserException e)
+        {
+            throw;
+        }
+
+        return _jwtService.EncodeToken(user);
     }
 
     public Task ChangePassword(ChangePasswordModel passwordData)
