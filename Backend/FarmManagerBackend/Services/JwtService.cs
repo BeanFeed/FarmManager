@@ -6,14 +6,13 @@ using DAL.Entities;
 using FarmManagerBackend.Exceptions;
 using FarmManagerBackend.Models.Settings;
 using FarmManagerBackend.Models.User;
-using FarmManagerBackend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace FarmManagerBackend.Services;
 
-public class JwtService : IJwtService
+public class JwtService
 {
     private readonly JwtConfig _jwtSettings;
     private readonly ManagerContext managerContext;
@@ -84,7 +83,7 @@ public class JwtService : IJwtService
             ClockSkew = TimeSpan.Zero,
             ValidateLifetime = true
         });
-        if (!result.IsValid) throw new UserException("Access Token Expired");
+        if (!result.IsValid) throw new UserException("Session Invalid");
         JwtSecurityToken token = handler.ReadJwtToken(eToken);
         
         var sessionId = Guid.Parse(token.Claims.Where(claim => claim.Type == "SessionId").ToArray()[0].Value);
@@ -93,7 +92,7 @@ public class JwtService : IJwtService
 
         if (!await IsValidSession(sessionId, name)) throw new UserException("Session Expired");
         var usr = await SearchUser(id);
-        if (usr == null) throw new UserException("Invalid Token");
+        if (usr == null) throw new UserException("User not found");
         usr.PassHash = null!;
         return usr;
         

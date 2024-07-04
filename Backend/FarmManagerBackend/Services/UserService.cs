@@ -2,17 +2,16 @@ using DAL.Context;
 using DAL.Entities;
 using FarmManagerBackend.Exceptions;
 using FarmManagerBackend.Models.User;
-using FarmManagerBackend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace FarmManagerBackend.Services;
 
-public class UserService : IUserService
+public class UserService
 {
     private readonly ManagerContext _managerContext;
-    private readonly IJwtService _jwtService;
+    private readonly JwtService _jwtService;
     
-    public UserService(ManagerContext context, IJwtService jwtService)
+    public UserService(ManagerContext context, JwtService jwtService)
     {
         _managerContext = context;
         _jwtService = jwtService;
@@ -156,12 +155,15 @@ public class UserService : IUserService
     {
         #region Check for user
 
-        User? user = await _jwtService.DecodeToken(jwt);
-
-        if (user is null) throw new UserException("User not found");
-
+        try
+        {
+            User? user = await _jwtService.DecodeToken(jwt);
+            return user;
+        }
+        catch (UserException e)
+        {
+            throw;
+        }
         #endregion
-
-        return user;
     }
 }
