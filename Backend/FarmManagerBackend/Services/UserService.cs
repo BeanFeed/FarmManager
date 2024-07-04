@@ -29,9 +29,19 @@ public class UserService : IUserService
         await managerContext.SaveChangesAsync();
     }
 
-    public Task DeleteUser(int userId)
+    public async Task DeleteUser(int userId)
     {
-        throw new NotImplementedException();
+        #region Get User
+
+        User? user = await managerContext.Users.FindAsync(userId);
+
+        if (user is null) throw new UserException("Couldn't find user");
+        
+        #endregion
+
+        managerContext.Users.Remove(user);
+
+        await managerContext.SaveChangesAsync();
     }
 
     public Task ChangeUserPassword(ChangeUserPasswordModel passwordData)
