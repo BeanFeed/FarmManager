@@ -141,11 +141,27 @@ public class UserService : IUserService
 
     public async Task<string> GetUserRole(int userId)
     {
-        throw new NotImplementedException();
+        #region Check for user
+
+        User? user = await _managerContext.Users.FindAsync(userId);
+
+        if (user is null) throw new UserException("User not found");
+
+        #endregion
+
+        return user.Role;
     }
 
-    public Task<User> Me(string jwt)
+    public async Task<User> Me(string jwt)
     {
-        throw new NotImplementedException();
+        #region Check for user
+
+        User? user = await _jwtService.DecodeToken(jwt);
+
+        if (user is null) throw new UserException("User not found");
+
+        #endregion
+
+        return user;
     }
 }
