@@ -14,7 +14,9 @@ public class UserService : IUserService
     {
         managerContext = context;
     }
-    
+
+    #region AdminServices
+
     public async Task CreateUser(CreateUserModel userData)
     {
         User user = new User()
@@ -48,6 +50,9 @@ public class UserService : IUserService
     {
         throw new NotImplementedException();
     }
+
+    #endregion
+    
 
     public Task<string[]> Login(UserLoginModel userData)
     {
