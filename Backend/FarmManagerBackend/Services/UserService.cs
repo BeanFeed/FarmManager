@@ -15,9 +15,18 @@ public class UserService : IUserService
         managerContext = context;
     }
     
-    public Task CreateUser(CreateUserModel userData)
+    public async Task CreateUser(CreateUserModel userData)
     {
-        throw new NotImplementedException();
+        User user = new User()
+        {
+            Name = userData.Name,
+            Role = userData.Role,
+            PassHash = BCrypt.Net.BCrypt.HashPassword(userData.Password)
+        };
+
+        await managerContext.Users.AddAsync(user);
+
+        await managerContext.SaveChangesAsync();
     }
 
     public Task DeleteUser(int userId)
