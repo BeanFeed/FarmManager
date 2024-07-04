@@ -46,9 +46,25 @@ public class UserService : IUserService
         await managerContext.SaveChangesAsync();
     }
 
-    public Task ChangeUserPassword(ChangeUserPasswordModel passwordData)
+    public async Task ChangeUserPassword(ChangeUserPasswordModel passwordData)
     {
-        throw new NotImplementedException();
+        #region Get User
+
+        User? user = await managerContext.Users.FindAsync(passwordData.UserId);
+
+        if (user is null) throw new UserException("Couldn't find user");
+
+        #endregion
+
+        #region Change Password
+
+        user.PassHash = BCrypt.Net.BCrypt.HashPassword(passwordData.NewPassword);
+
+        managerContext.Users.Update(user);
+        
+        #endregion
+
+        await managerContext.SaveChangesAsync();
     }
 
     #endregion
