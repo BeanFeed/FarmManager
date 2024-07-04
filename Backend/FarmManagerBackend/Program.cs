@@ -1,6 +1,30 @@
+using DAL.Context;
+using FarmManagerBackend.Models.Settings;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.Configure<DatabaseConfig>(builder.Configuration.GetSection("DatabaseConfiguration"));
+builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("Jwt"));
+
+
+builder.Services.AddDbContext<ManagerContext>(options => 
+    options.UseMySql($"server={builder.Configuration["DatabaseConfiguration:ServerAddress"]},{builder.Configuration["DatabaseConfiguration:Port"]};database={builder.Configuration["DatabaseConfiguration:Database"]};user={builder.Configuration["DatabaseConfiguration:User"]};password={builder.Configuration["DatabaseConfiguration:Password"]}",
+    ServerVersion.AutoDetect($"server={builder.Configuration["DatabaseConfiguration:ServerAddress"]},{builder.Configuration["DatabaseConfiguration:Port"]};database={builder.Configuration["DatabaseConfiguration:Database"]};user={builder.Configuration["DatabaseConfiguration:User"]};password={builder.Configuration["DatabaseConfiguration:Password"]}")));
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        x =>
+        {
+            x.WithOrigins(builder.Configuration["Cors:Origin"])
+                .WithMethods("GET","POST","PUT","DELETE","OPTIONS")
+                .AllowAnyHeader()
+                .AllowCredentials();
+        });
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -17,6 +41,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors();
 
 app.UseAuthorization();
 
