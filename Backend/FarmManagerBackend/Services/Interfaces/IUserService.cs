@@ -15,7 +15,7 @@ public interface IUserService
     
     public Task<string[]> Login(UserLoginModel userData); //All users login
     public Task<string[]> Refresh(string rToken); //Refresh Access and Refresh tokens
-    public Task ChangePassword(ChangePasswordModel passwordData);
+    public Task ChangePassword(ChangePasswordModel passwordData, int id);
     public Task<string> GetUserRole(int userId);
     public Task<User> Me(string jwt); //Get basic user info
 }

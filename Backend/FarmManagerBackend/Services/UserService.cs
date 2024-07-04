@@ -119,9 +119,24 @@ public class UserService : IUserService
         return _jwtService.EncodeToken(user);
     }
 
-    public Task ChangePassword(ChangePasswordModel passwordData)
+    public async Task ChangePassword(ChangePasswordModel passwordData, int id)
     {
-        throw new NotImplementedException();
+        #region Check for user
+
+        User? user = await _managerContext.Users.FindAsync(id);
+
+        if (user is null) throw new UserException("User not found");
+
+        #endregion
+
+        #region Change Password
+
+        if (BCrypt.Net.BCrypt.Verify(passwordData.OldPassword, user.PassHash))
+            user.PassHash = BCrypt.Net.BCrypt.HashPassword(passwordData.NewPassword);
+
+        #endregion
+
+        await _managerContext.SaveChangesAsync();
     }
 
     public async Task<string> GetUserRole(int userId)
