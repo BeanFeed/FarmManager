@@ -5,6 +5,7 @@ using DAL.Context;
 using DAL.Entities;
 using FarmManagerBackend.Exceptions;
 using FarmManagerBackend.Models.Settings;
+using FarmManagerBackend.Models.User;
 using FarmManagerBackend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -93,6 +94,7 @@ public class JwtService : IJwtService
         if (!await IsValidSession(sessionId, name)) throw new UserException("Session Expired");
         var usr = await SearchUser(id);
         if (usr == null) throw new UserException("Invalid Token");
+        usr.PassHash = null!;
         return usr;
         
         
@@ -122,6 +124,8 @@ public class JwtService : IJwtService
 
         if (user is null) throw new UserException("User not found");
 
+        user.PassHash = null!;
+        
         return user;
     }
 
