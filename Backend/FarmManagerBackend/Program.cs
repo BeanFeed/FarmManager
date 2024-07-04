@@ -1,5 +1,7 @@
 using DAL.Context;
 using FarmManagerBackend.Models.Settings;
+using FarmManagerBackend.Services;
+using FarmManagerBackend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<DatabaseConfig>(builder.Configuration.GetSection("DatabaseConfiguration"));
 builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("Jwt"));
 
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddDbContext<ManagerContext>(options => 
     options.UseMySql($"server={builder.Configuration["DatabaseConfiguration:ServerAddress"]},{builder.Configuration["DatabaseConfiguration:Port"]};database={builder.Configuration["DatabaseConfiguration:Database"]};user={builder.Configuration["DatabaseConfiguration:User"]};password={builder.Configuration["DatabaseConfiguration:Password"]}",
