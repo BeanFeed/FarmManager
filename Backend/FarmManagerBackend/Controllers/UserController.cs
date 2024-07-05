@@ -71,6 +71,14 @@ public class UserController : ControllerBase
 
     [Authenticate]
     [Authorize(Role = "owner")]
+    [HttpGet]
+    public async Task<IActionResult> GetUsers()
+    {
+        return Ok(await _userService.GetUsers());
+    }
+
+    [Authenticate]
+    [Authorize(Role = "owner")]
     [HttpPost]
     public async Task<IActionResult> ModifyUser(ModifyUserModel userData)
     {

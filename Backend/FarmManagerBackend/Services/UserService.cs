@@ -66,6 +66,18 @@ public class UserService
         return user;
     }
 
+    public async Task<User[]> GetUsers()
+    {
+        User[] users = await _managerContext.Users.ToArrayAsync();
+        
+        for (int i = 0; i < users.Length; i++)
+        {
+            users[i].PassHash = null!;
+        }
+
+        return users;
+    }
+
     public async Task ModifyUser(ModifyUserModel userData)
     {
         #region Get User
