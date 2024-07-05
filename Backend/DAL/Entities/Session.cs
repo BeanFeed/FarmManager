@@ -6,6 +6,6 @@ public class Session
 {
     [Key]
     public Guid SessionId { get; set; }
-    public string User { get; set; }
+    public int UserId { get; set; }
     public bool Valid { get; set; } = true;
 }
