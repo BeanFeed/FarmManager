@@ -10,6 +10,7 @@ public class Ticket
     public User Technician { get; set; } = null!;
     public DateTime DateOpened { get; set; }
     public DateTime DateClosed { get; set; }
+    public string Issue { get; set; } = null!;
     public string Repair { get; set; } = null!;
     public Printer Printer { get; set; } = null!;
 }
