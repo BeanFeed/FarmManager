@@ -56,27 +56,6 @@ public class UserService
         await _managerContext.SaveChangesAsync();
     }
 
-    public async Task ChangeUserPassword(ChangeUserPasswordModel passwordData)
-    {
-        #region Get User
-
-        User? user = await _managerContext.Users.FindAsync(passwordData.UserId);
-
-        if (user is null) throw new UserException("Couldn't find user");
-
-        #endregion
-
-        #region Change Password
-
-        user.PassHash = BCrypt.Net.BCrypt.HashPassword(passwordData.NewPassword);
-
-        _managerContext.Users.Update(user);
-        
-        #endregion
-
-        await _managerContext.SaveChangesAsync();
-    }
-
     #endregion
 
     public async Task<User> GetUser(int userId)
