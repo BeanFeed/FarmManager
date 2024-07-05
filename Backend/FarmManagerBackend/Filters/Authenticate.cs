@@ -49,6 +49,8 @@ public class Authenticate : Attribute, IAsyncActionFilter
         try
         {
             _user = await userService.Me(token);
+            
+            context.HttpContext.Items.Add("User", _user);
         }
         catch (UserException e)
         {
