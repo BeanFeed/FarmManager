@@ -25,7 +25,7 @@ public class Authenticate : Attribute, IAsyncActionFilter
                 
             };
             
-            var rJwtOpt = new CookieOptions()
+        var rJwtOpt = new CookieOptions()
             {
                 Domain = context.HttpContext.Request.Host.Host,
                 HttpOnly = true,
@@ -72,6 +72,4 @@ public class Authenticate : Attribute, IAsyncActionFilter
         
         await next();
     }
-
-    public virtual User User => _user;
 }
