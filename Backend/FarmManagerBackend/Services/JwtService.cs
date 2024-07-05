@@ -44,7 +44,7 @@ public class JwtService
         
         var rClaims = new[]
         {
-            new Claim("Name", user.Name),
+            new Claim("UserId", user.Id.ToString()),
             new Claim("SessionId", sessionGuid)
             
         };
@@ -89,8 +89,6 @@ public class JwtService
         var sessionId = Guid.Parse(token.Claims.Where(claim => claim.Type == "SessionId").ToArray()[0].Value);
         var name = token.Claims.Where(claim => claim.Type == "Name").ToArray()[0].Value;
         var id = int.Parse(token.Claims.Where(claim => claim.Type == "Id").ToArray()[0].Value);
-
-        if (!await IsValidSession(sessionId, name)) throw new UserException("Session Expired");
         var usr = await SearchUser(id);
         if (usr == null) throw new UserException("User not found");
         usr.PassHash = null!;
@@ -117,9 +115,9 @@ public class JwtService
         JwtSecurityToken token = handler.ReadJwtToken(rToken);
         
         var sessionId = Guid.Parse(token.Claims.Where(claim => claim.Type == "SessionId").ToArray()[0].Value);
-        var name = token.Claims.Where(claim => claim.Type == "Name").ToArray()[0].Value;
+        var userId = int.Parse(token.Claims.Where(claim => claim.Type == "UserId").ToArray()[0].Value);
 
-        var user = await SearchUser(name);
+        var user = await SearchUser(userId);
 
         if (user is null) throw new UserException("User not found");
 
@@ -146,18 +144,18 @@ public class JwtService
         JwtSecurityToken token = handler.ReadJwtToken(rToken);
         
         var sessionId = Guid.Parse(token.Claims.Where(claim => claim.Type == "SessionId").ToArray()[0].Value);
-        var name = token.Claims.Where(claim => claim.Type == "Name").ToArray()[0].Value;
+        var userId = int.Parse(token.Claims.Where(claim => claim.Type == "UserId").ToArray()[0].Value);
 
-        return await IsValidSession(sessionId, name);
+        return await IsValidSession(sessionId, userId);
     }
 
-    private async Task<bool> IsValidSession(Guid sessionId, string name)
+    private async Task<bool> IsValidSession(Guid sessionId, int userId)
     {
         Session? session = await managerContext.Sessions.FindAsync(sessionId);
 
         if (session is null) return false;
 
-        if (session.User != name || !session.Valid) return false;
+        if (session.UserId != userId || !session.Valid) return false;
 
         return true;
     }
