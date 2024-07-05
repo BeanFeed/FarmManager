@@ -7,10 +7,15 @@ public class Printer
 {
     [Key]
     public string Name { get; set; } = null!;
+    [Required]
     public string SerialNumber { get; set; } = null!;
+    [Required]
     public string Brand { get; set; } = null!;
+    [Required]
     public string Model { get; set; } = null!;
-    public string Location { get; set; } = null!;
+    [Required]
+    public Location Location { get; set; } = null!;
+    [Required]
     public DateTime PurchaseDate { get; set; }
 
 }
