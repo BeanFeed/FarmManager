@@ -23,7 +23,7 @@ DbContextOptionsBuilder<ManagerContext> mOptions = new DbContextOptionsBuilder<M
         $"server={builder.Configuration["DatabaseConfiguration:ServerAddress"]},{builder.Configuration["DatabaseConfiguration:Port"]};database={builder.Configuration["DatabaseConfiguration:Database"]};user={builder.Configuration["DatabaseConfiguration:User"]};password={builder.Configuration["DatabaseConfiguration:Password"]}"));
 
 var dbContext = new ManagerContext(mOptions.Options);
-dbContext.Database.EnsureCreated();
+dbContext.Database.Migrate();
 dbContext.Dispose();
 //-------
 
