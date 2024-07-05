@@ -78,7 +78,54 @@ public class UserService
     }
 
     #endregion
-    
+
+    public async Task<User> GetUser(int userId)
+    {
+        User? user = await _managerContext.Users.FindAsync(userId);
+        if (user is null) throw new UserException("User not found");
+        user.PassHash = null!;
+        return user;
+    }
+
+    public async Task ModifyUser(ModifyUserModel userData)
+    {
+        #region Get User
+
+        User? user = await _managerContext.Users.FindAsync(userData.Id);
+
+        if (user is null) throw new UserException("User not found");
+
+        #endregion
+
+        #region Modify Data
+
+        if (userData.Name is not null)
+        {
+            //Check if name already exists
+            User? existingUser = await _managerContext.Users.Where(x => x.Name == userData.Name).FirstAsync();
+            if (existingUser is not null) throw new UserException("Name already used");
+
+            user.Name = userData.Name;
+        }
+
+        if (userData.Role is not null)
+        {
+            if (userData.Role == "owner") throw new UserException("Cannot make user an Owner");
+            if (user.Role == "owner") throw new UserException("Cannot downgrade Owner");
+            
+            user.Role = userData.Role;
+        }
+
+        if (userData.Password is not null)
+        {
+            user.PassHash = BCrypt.Net.BCrypt.HashPassword(userData.Password);
+        }
+        #endregion
+
+        _managerContext.Users.Update(user);
+
+        await _managerContext.SaveChangesAsync();
+    }
 
     public async Task<string[]> Login(UserLoginModel userData)
     {
