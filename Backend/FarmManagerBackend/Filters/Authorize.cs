@@ -1,5 +1,6 @@
 using DAL.Entities;
 using FarmManagerBackend.Exceptions;
+using FarmManagerBackend.Models.User;
 using FarmManagerBackend.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -8,7 +9,7 @@ namespace FarmManagerBackend.Filters;
 
 public class Authorize : Attribute, IAsyncActionFilter
 {
-    private string role = "member";
+    private Roles _role = Roles.Member;
     
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
@@ -38,18 +39,23 @@ public class Authorize : Attribute, IAsyncActionFilter
             return;
         }
 
-        if (!Utils.RoleAuthorized(user.Role, role))
+        if (!Enum.TryParse(user.Role, out Roles userRole))
         {
-            context.Result = new UnauthorizedObjectResult($"Requires {role} privileges");
+            throw new Exception($"Unknown role \"{user.Role}\" for User \"{user.Id}\"");
+        }
+        
+        if (!Utils.RoleAuthorized(userRole, _role))
+        {
+            context.Result = new UnauthorizedObjectResult($"Requires {nameof(_role)} privileges");
             return;
         }
 
         await next();
     }
     
-    public virtual string Role
+    public virtual Roles Role
     {
-        get { return role; }
-        set { role = value; }
+        get => _role;
+        set => _role = value;
     }
 }
