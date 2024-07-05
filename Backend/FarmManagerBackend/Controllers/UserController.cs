@@ -1,3 +1,4 @@
+using DAL.Entities;
 using FarmManagerBackend.Exceptions;
 using FarmManagerBackend.Filters;
 using FarmManagerBackend.Models;
@@ -19,9 +20,9 @@ public class UserController : ControllerBase
         _settings = settings;
     }
     
-    [Authenticate]
-    [Authorize(Role = "owner")]
     [HttpPost]
+    [Authenticate]
+    [Authorize(Role = Roles.Owner)]
     public async Task<IActionResult> CreateUser(CreateUserModel userData)
     {
         try
@@ -35,10 +36,10 @@ public class UserController : ControllerBase
 
         return Ok("User Created");
     }
-
-    [Authenticate]
-    [Authorize(Role = "owner")]
+    
     [HttpDelete]
+    [Authenticate]
+    [Authorize(Role = Roles.Owner)]
     public async Task<IActionResult> DeleteUser([FromBody]int userId)
     {
         try
@@ -52,10 +53,10 @@ public class UserController : ControllerBase
 
         return Ok("User Deleted");
     }
-
-    [Authenticate]
-    [Authorize(Role = "admin")]
+    
     [HttpGet]
+    [Authenticate]
+    [Authorize(Role = Roles.Owner)]
     public async Task<IActionResult> GetUser(int userId)
     {
         try
@@ -68,18 +69,18 @@ public class UserController : ControllerBase
             return BadRequest(e.Message);
         }
     }
-
-    [Authenticate]
-    [Authorize(Role = "owner")]
+    
     [HttpGet]
+    [Authenticate]
+    [Authorize(Role = Roles.Owner)]
     public async Task<IActionResult> GetUsers()
     {
         return Ok(await _userService.GetUsers());
     }
-
-    [Authenticate]
-    [Authorize(Role = "owner")]
+    
     [HttpPost]
+    [Authenticate]
+    [Authorize(Role = Roles.Owner)]
     public async Task<IActionResult> ModifyUser(ModifyUserModel userData)
     {
         try
@@ -132,14 +133,14 @@ public class UserController : ControllerBase
             return BadRequest(e.Message);
         }
     }
-
-    [Authenticate]
+    
     [HttpPost]
+    [Authenticate]
     public async Task<IActionResult> ChangePassword(ChangePasswordModel passwordData)
     {
         try
         {
-            var user = await _userService.Me(Request.Cookies["authToken"]!);
+            User user = (User)HttpContext.Items["User"]!;
 
             await _userService.ChangePassword(passwordData, user.Id);
 
