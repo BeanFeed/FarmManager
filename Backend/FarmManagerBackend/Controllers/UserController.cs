@@ -40,7 +40,7 @@ public class UserController : ControllerBase
     [HttpDelete]
     [Authenticate]
     [Authorize(Role = Roles.Owner)]
-    public async Task<IActionResult> DeleteUser([FromBody]int userId)
+    public async Task<IActionResult> DeleteUser(int userId)
     {
         try
         {
