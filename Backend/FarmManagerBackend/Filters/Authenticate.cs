@@ -48,7 +48,21 @@ public class Authenticate : Attribute, IAsyncActionFilter
         
         try
         {
-            _user = await userService.Me(token);
+            var tokens = await userService.Refresh(rToken);
+            context.HttpContext.Response.Cookies.Append("authToken", tokens[0]);
+            context.HttpContext.Response.Cookies.Append("rAuthToken", tokens[1]);
+            context.HttpContext.Items.Add("newToken", tokens[0]);
+            token = tokens[0];
+        }
+        catch (UserException e)
+        {
+            context.Result = new BadRequestObjectResult(e.Message);
+            return;
+        }
+        
+        try
+        {
+            _user = await userService.Me(token, true);
             
             context.HttpContext.Items.Add("User", _user);
         }
@@ -60,17 +74,7 @@ public class Authenticate : Attribute, IAsyncActionFilter
             return;
         }
 
-        try
-        {
-            var tokens = await userService.Refresh(rToken);
-            context.HttpContext.Response.Cookies.Append("authToken", tokens[0]);
-            context.HttpContext.Response.Cookies.Append("rAuthToken", tokens[1]);
-        }
-        catch (UserException e)
-        {
-            context.Result = new BadRequestObjectResult(e.Message);
-            return;
-        }
+        
         
         await next();
     }
