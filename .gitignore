@@ -691,3 +691,4 @@ yarn-error.log
 /Backend/FarmManagerBackend/appsettings.Development.json
 /Backend/FarmManagerBackend/DbConfig.config
 /Backend/DAL/Connection.txt
+/Backend/FarmManagerBackend/Config.env
