@@ -62,17 +62,31 @@ public class UserService
     {
         User? user = await _managerContext.Users.FindAsync(userId);
         if (user is null) throw new UserException("User not found");
-        user.PassHash = null!;
-        return user;
+        var cUsr = new User()
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Role = user.Role,
+            PassHash = ""
+        };
+        
+        return cUsr;
     }
 
     public async Task<User[]> GetUsers()
     {
-        User[] users = await _managerContext.Users.ToArrayAsync();
-        
+        User[] eUsers = await _managerContext.Users.ToArrayAsync();
+        User[] users = new User[eUsers.Length];
         for (int i = 0; i < users.Length; i++)
         {
-            users[i].PassHash = null!;
+            User cUsr = new User()
+            {
+                Id = eUsers[i].Id,
+                Name = eUsers[i].Name,
+                Role = eUsers[i].Role,
+                PassHash = ""
+            };
+            users[i] = cUsr;
         }
 
         return users;
@@ -134,7 +148,7 @@ public class UserService
 
         #endregion
 
-        var tokens = _jwtService.EncodeToken(user);
+        var tokens = await _jwtService.EncodeToken(user);
 
         return tokens;
     }
@@ -153,7 +167,7 @@ public class UserService
             throw;
         }
 
-        return _jwtService.EncodeToken(user);
+        return await _jwtService.EncodeToken(user);
     }
 
     public async Task ChangePassword(ChangePasswordModel passwordData, int id)
@@ -173,29 +187,25 @@ public class UserService
 
         #endregion
 
+        #region Invalidate old sessions
+
+        Session[] oldSessions = await _managerContext.Sessions.Where(x => x.UserId == user.Id).ToArrayAsync();
+        for (int i = 0; i < oldSessions.Length; i++)
+        {
+            oldSessions[i].Valid = false;
+        }
+        #endregion
+
         await _managerContext.SaveChangesAsync();
     }
 
-    public async Task<string> GetUserRole(int userId)
-    {
-        #region Check for user
-
-        User? user = await _managerContext.Users.FindAsync(userId);
-
-        if (user is null) throw new UserException("User not found");
-
-        #endregion
-
-        return user.Role;
-    }
-
-    public async Task<User> Me(string jwt)
+    public async Task<User> Me(string jwt, bool keepHash = false)
     {
         #region Check for user
 
         try
         {
-            User? user = await _jwtService.DecodeToken(jwt);
+            User? user = await _jwtService.DecodeToken(jwt, keepHash);
             return user;
         }
         catch (UserException e)
