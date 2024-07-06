@@ -151,6 +151,13 @@ public class UserController : ControllerBase
             return BadRequest(e.Message);
         }
     }
+
+    [HttpGet]
+    [Authenticate]
+    public async Task<IActionResult> Me()
+    {
+        return Ok(await _userService.Me(HttpContext.Items["newToken"]!.ToString()!));
+    }
     
     
 }
