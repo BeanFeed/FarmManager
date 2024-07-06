@@ -2,9 +2,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Entities;
 
-[Keyless]
 public class IssueType
 {
+    public int Id { get; set; }
     public string Issue { get; set; } = null!;
     public string Repair { get; set; } = null!;
 }
