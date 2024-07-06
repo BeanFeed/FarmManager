@@ -81,7 +81,7 @@ public class PrinterController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetPrinters(string name)
+    public async Task<IActionResult> GetPrinters(string? name)
     {
         try
         {

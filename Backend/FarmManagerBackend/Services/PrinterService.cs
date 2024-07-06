@@ -29,7 +29,8 @@ public class PrinterService
             SerialNumber = printerData.SerialNumber,
             Brand = printerData.Brand,
             Model = printerData.Model,
-            PurchaseDate = printerData.PurchaseDate
+            PurchaseDate = printerData.PurchaseDate,
+            Location = location
         };
 
         await _managerContext.Printers.AddAsync(printer);
@@ -91,9 +92,11 @@ public class PrinterService
         return printer;
     }
 
-    public async Task<Printer[]> GetPrinters(string name)
+    public async Task<Printer[]> GetPrinters(string? name)
     {
-        Printer[] printers = await _managerContext.Printers.ToArrayAsync();
+        Printer[] printers;
+        if (name is null) printers = await _managerContext.Printers.ToArrayAsync();
+        else printers = await _managerContext.Printers.Where(x => x.Name.Contains(name)).ToArrayAsync();
         return printers;
     }
 }

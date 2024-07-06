@@ -23,7 +23,7 @@ public class UserService
     {
         #region Check Existing User
 
-        User? eUser = await _managerContext.Users.Where(x => x.Name == userData.Name).FirstAsync();
+        User? eUser = await _managerContext.Users.AsNoTracking().Where(x => x.Name == userData.Name).FirstAsync();
 
         if (eUser != null) throw new UserException("Name already used");
 
@@ -52,7 +52,14 @@ public class UserService
         #endregion
 
         _managerContext.Users.Remove(user);
-
+        
+        Session[] oldSessions = await _managerContext.Sessions.Where(x => x.UserId == user.Id).ToArrayAsync();
+        
+        for (int i = 0; i < oldSessions.Length; i++)
+        {
+            oldSessions[i].Valid = false;
+        }
+        
         await _managerContext.SaveChangesAsync();
     }
 
@@ -60,7 +67,7 @@ public class UserService
 
     public async Task<User> GetUser(int userId)
     {
-        User? user = await _managerContext.Users.FindAsync(userId);
+        User? user = await _managerContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId);
         if (user is null) throw new UserException("User not found");
         var cUsr = new User()
         {
@@ -75,7 +82,7 @@ public class UserService
 
     public async Task<User[]> GetUsers()
     {
-        User[] eUsers = await _managerContext.Users.ToArrayAsync();
+        User[] eUsers = await _managerContext.Users.AsNoTracking().ToArrayAsync();
         User[] users = new User[eUsers.Length];
         for (int i = 0; i < users.Length; i++)
         {
@@ -107,7 +114,7 @@ public class UserService
         if (userData.Name is not null)
         {
             //Check if name already exists
-            User? existingUser = await _managerContext.Users.Where(x => x.Name == userData.Name).FirstAsync();
+            User? existingUser = await _managerContext.Users.AsNoTracking().Where(x => x.Name == userData.Name).FirstAsync();
             if (existingUser is not null) throw new UserException("Name already used");
 
             user.Name = userData.Name;
@@ -136,7 +143,7 @@ public class UserService
     {
         #region Get User
 
-        User? user = await _managerContext.Users.Where(x => x.Name == userData.Name).FirstAsync();
+        User? user = await _managerContext.Users.AsNoTracking().Where(x => x.Name == userData.Name).FirstAsync();
 
         if (user is null) throw new UserException("User not found");
 

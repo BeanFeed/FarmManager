@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(ManagerContext))]
-    [Migration("20240706141137_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20240706150725_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,7 +23,7 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("DAL.Entities.IssueType", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("IssueId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
@@ -35,7 +35,7 @@ namespace DAL.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.HasKey("Id");
+                    b.HasKey("IssueId");
 
                     b.ToTable("IssueTypes");
                 });
@@ -100,7 +100,7 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("DAL.Entities.Ticket", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("TicketId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
@@ -114,26 +114,20 @@ namespace DAL.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("OpenedById")
+                    b.Property<int>("OpenedBy")
                         .HasColumnType("int");
 
-                    b.Property<string>("PrinterName")
+                    b.Property<string>("Printer")
                         .IsRequired()
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Repair")
                         .HasColumnType("longtext");
 
-                    b.Property<int?>("TechnicianId")
+                    b.Property<int?>("Technician")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("OpenedById");
-
-                    b.HasIndex("PrinterName");
-
-                    b.HasIndex("TechnicianId");
+                    b.HasKey("TicketId");
 
                     b.ToTable("Tickets");
                 });
@@ -170,31 +164,6 @@ namespace DAL.Migrations
                         .IsRequired();
 
                     b.Navigation("Location");
-                });
-
-            modelBuilder.Entity("DAL.Entities.Ticket", b =>
-                {
-                    b.HasOne("DAL.Entities.User", "OpenedBy")
-                        .WithMany()
-                        .HasForeignKey("OpenedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DAL.Entities.Printer", "Printer")
-                        .WithMany()
-                        .HasForeignKey("PrinterName")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DAL.Entities.User", "Technician")
-                        .WithMany()
-                        .HasForeignKey("TechnicianId");
-
-                    b.Navigation("OpenedBy");
-
-                    b.Navigation("Printer");
-
-                    b.Navigation("Technician");
                 });
 #pragma warning restore 612, 618
         }

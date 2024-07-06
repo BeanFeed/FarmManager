@@ -80,61 +80,38 @@ public class TicketService
         return issueTypes;
     }
     
-    public async Task OpenTicket(CreateTicketModel ticketData)
+    public async Task OpenTicket(CreateTicketModel ticketData, int openedBy)
     {
-        User openedByUser;
-
         try
         {
-            openedByUser = await _userService.GetUser(ticketData.OpenedBy);
-        }
-        catch (UserException e)
-        {
-            throw new TicketException(e.Message);
-        }
-
-        Printer printer;
-
-        try
-        {
-            printer = await _printerService.GetPrinter(ticketData.PrinterName);
+            await _printerService.GetPrinter(ticketData.PrinterName);
         }
         catch (PrinterException e)
         {
             throw new TicketException(e.Message);
         }
-
+        
         Ticket ticket = new Ticket()
         {
             Issue = ticketData.Issue,
-            OpenedBy = openedByUser,
+            OpenedBy = openedBy,
             DateOpened = DateTime.Now,
-            Printer = printer
+            Printer = ticketData.PrinterName
         };
 
         await _managerContext.Tickets.AddAsync(ticket);
         await _managerContext.SaveChangesAsync();
     }
 
-    public async Task CloseTicket(CloseTicketModel ticketData, int userId)
+    public async Task CloseTicket(CloseTicketModel ticketData, int user)
     {
         Ticket? ticket = await _managerContext.Tickets.FindAsync(ticketData.Id);
         if (ticket is null) throw new TicketException($"Ticket {ticketData.Id} not found");
         if (ticket.DateClosed is not null) throw new TicketException($"Ticket {ticketData.Id} already closed");
-
-        User closedBy;
-
-        try
-        {
-            closedBy = await _userService.GetUser(userId);
-        }
-        catch (UserException e)
-        {
-            throw new TicketException(e.Message);
-        }
         
         ticket.DateClosed = DateTime.Now;
-        ticket.Technician = closedBy;
+        
+        ticket.Technician = user;
         ticket.Repair = ticketData.Repair;
 
         _managerContext.Tickets.Update(ticket);
@@ -156,34 +133,30 @@ public class TicketService
 
         if (ticketData.OpenedBy is not null)
         {
-            User openedByUser;
-
             try
             {
-                openedByUser = await _userService.GetUser(ticketData.OpenedBy.Value);
+                await _userService.GetUser(ticketData.OpenedBy.Value);
             }
             catch (UserException e)
             {
                 throw new TicketException($"User {ticketData.OpenedBy.Value} not found");
             }
 
-            ticket.OpenedBy = openedByUser;
+            ticket.OpenedBy = ticketData.OpenedBy.Value;
         }
 
         if (ticketData.Technician is not null)
         {
-            User technician;
-
             try
             {
-                technician = await _userService.GetUser(ticketData.Technician.Value);
+                await _userService.GetUser(ticketData.Technician.Value);
             }
             catch (UserException e)
             {
                 throw new TicketException($"User {ticketData.Technician.Value} not found");
             }
 
-            ticket.Technician = technician;
+            ticket.Technician = ticketData.Technician.Value;
         }
 
         if (ticketData.Reopen is not null && ticketData.Reopen.Value)
@@ -203,27 +176,28 @@ public class TicketService
 
         if (ticketData.PrinterName is not null)
         {
-            Printer printer;
-
             try
             {
-                printer = await _printerService.GetPrinter(ticketData.PrinterName);
+                await _printerService.GetPrinter(ticketData.PrinterName);
             }
             catch (PrinterException e)
             {
                 throw new TicketException($"Printer {ticketData.PrinterName} not found");
             }
 
-            ticket.Printer = printer;
+            ticket.Printer = ticketData.PrinterName;
         }
 
         _managerContext.Tickets.Update(ticket);
         await _managerContext.SaveChangesAsync();
     }
     
-    public async Task<Ticket[]> GetTickets(string name)
+    public async Task<Ticket[]> GetTickets(string? name)
     {
-        Ticket[] tickets = await _managerContext.Tickets.Where(x => x.Printer.Name.Contains(name)).ToArrayAsync();
+        Ticket[] tickets;
+        if (name is not null)
+            tickets = await _managerContext.Tickets.Where(x => x.Printer.Contains(name)).ToArrayAsync();
+        else tickets = await _managerContext.Tickets.ToArrayAsync();
         return tickets;
     }
     

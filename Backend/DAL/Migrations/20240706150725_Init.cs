@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DAL.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class Init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -17,7 +17,7 @@ namespace DAL.Migrations
                 name: "IssueTypes",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    IssueId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Issue = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -26,7 +26,7 @@ namespace DAL.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IssueTypes", x => x.Id);
+                    table.PrimaryKey("PK_IssueTypes", x => x.IssueId);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -54,6 +54,29 @@ namespace DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Sessions", x => x.SessionId);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Tickets",
+                columns: table => new
+                {
+                    TicketId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    OpenedBy = table.Column<int>(type: "int", nullable: false),
+                    Technician = table.Column<int>(type: "int", nullable: true),
+                    DateOpened = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    DateClosed = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    Issue = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Repair = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Printer = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tickets", x => x.TicketId);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -104,65 +127,10 @@ namespace DAL.Migrations
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
-            migrationBuilder.CreateTable(
-                name: "Tickets",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    OpenedById = table.Column<int>(type: "int", nullable: false),
-                    TechnicianId = table.Column<int>(type: "int", nullable: true),
-                    DateOpened = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    DateClosed = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    Issue = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Repair = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    PrinterName = table.Column<string>(type: "varchar(255)", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Tickets", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Tickets_Printers_PrinterName",
-                        column: x => x.PrinterName,
-                        principalTable: "Printers",
-                        principalColumn: "Name",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Tickets_Users_OpenedById",
-                        column: x => x.OpenedById,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Tickets_Users_TechnicianId",
-                        column: x => x.TechnicianId,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
             migrationBuilder.CreateIndex(
                 name: "IX_Printers_LocationName",
                 table: "Printers",
                 column: "LocationName");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tickets_OpenedById",
-                table: "Tickets",
-                column: "OpenedById");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tickets_PrinterName",
-                table: "Tickets",
-                column: "PrinterName");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tickets_TechnicianId",
-                table: "Tickets",
-                column: "TechnicianId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -171,13 +139,13 @@ namespace DAL.Migrations
                 name: "IssueTypes");
 
             migrationBuilder.DropTable(
+                name: "Printers");
+
+            migrationBuilder.DropTable(
                 name: "Sessions");
 
             migrationBuilder.DropTable(
                 name: "Tickets");
-
-            migrationBuilder.DropTable(
-                name: "Printers");
 
             migrationBuilder.DropTable(
                 name: "Users");

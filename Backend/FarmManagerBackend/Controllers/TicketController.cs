@@ -95,7 +95,8 @@ public class TicketController : ControllerBase
     {
         try
         {
-            await _ticketService.OpenTicket(ticketData);
+            User user = (User)HttpContext.Items["User"]!;
+            await _ticketService.OpenTicket(ticketData, user.Id);
         }
         catch (TicketException e)
         {
@@ -156,7 +157,7 @@ public class TicketController : ControllerBase
 
     [HttpGet]
     [Authorize(Role = Roles.Technician)]
-    public async Task<IActionResult> GetTickets(string printerName)
+    public async Task<IActionResult> GetTickets(string? printerName)
     {
         return Ok(await _ticketService.GetTickets(printerName));
     }

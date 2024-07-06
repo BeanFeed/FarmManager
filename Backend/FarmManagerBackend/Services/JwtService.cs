@@ -197,7 +197,7 @@ public class JwtService
 
     private async Task<User?> SearchUser(int id)
     {
-        User? user = await managerContext.Users.FindAsync(id);
+        User? user = await managerContext.Users.AsNoTracking().FirstOrDefaultAsync(x=> x.Id == id);
 
         if (user is null) return null;
 

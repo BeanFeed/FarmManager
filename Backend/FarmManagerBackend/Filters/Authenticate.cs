@@ -14,6 +14,7 @@ public class Authenticate : Attribute, IAsyncActionFilter
     {
         var settings = context.HttpContext.RequestServices.GetService<SettingsService>();
         var userService = context.HttpContext.RequestServices.GetService<UserService>();
+        var jwtService = context.HttpContext.RequestServices.GetService<JwtService>();
         
         var jwtOpt = new CookieOptions()
             {
@@ -48,21 +49,40 @@ public class Authenticate : Attribute, IAsyncActionFilter
         
         try
         {
-            var tokens = await userService.Refresh(rToken);
-            context.HttpContext.Response.Cookies.Append("authToken", tokens[0]);
-            context.HttpContext.Response.Cookies.Append("rAuthToken", tokens[1]);
-            context.HttpContext.Items.Add("newToken", tokens[0]);
-            token = tokens[0];
+            await jwtService!.DecodeToken(token);
+            context.HttpContext.Items.Add("newToken", token);
         }
         catch (UserException e)
         {
-            context.Result = new BadRequestObjectResult(e.Message);
-            return;
+            if (e.Message == "Session Invalid")
+            {
+                try
+                {
+                    var tokens = await userService!.Refresh(rToken);
+                    context.HttpContext.Response.Cookies.Append("authToken", tokens[0], jwtOpt);
+                    context.HttpContext.Response.Cookies.Append("rAuthToken", tokens[1], rJwtOpt);
+                    context.HttpContext.Items.Add("newToken", tokens[0]);
+                    token = tokens[0];
+                }
+                catch (UserException e2)
+                {
+                    context.Result = new BadRequestObjectResult(e2.Message);
+                    context.HttpContext.Response.Cookies.Delete("authToken");
+                    context.HttpContext.Response.Cookies.Delete("rAuthToken");
+                    return;
+                }
+            }
+            else
+            {
+                context.Result = new BadRequestObjectResult(e.Message);
+                return;
+            }
+            
         }
         
         try
         {
-            _user = await userService.Me(token, true);
+            _user = await userService!.Me(token, true);
             
             context.HttpContext.Items.Add("User", _user);
         }

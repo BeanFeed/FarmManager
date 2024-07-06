@@ -1,10 +1,12 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Entities;
 
 public class IssueType
 {
-    public int Id { get; set; }
+    [Key]
+    public int IssueId { get; set; }
     public string Issue { get; set; } = null!;
     public string Repair { get; set; } = null!;
 }
