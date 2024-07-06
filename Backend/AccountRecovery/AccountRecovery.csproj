@@ -16,8 +16,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\DAL\DAL.csproj" />
-        <ProjectReference Include="..\FarmManagerBackend\FarmManagerBackend.csproj" />
-    </ItemGroup>
+ </ItemGroup>
 
     <ItemGroup>
       <Reference Include="Microsoft.Extensions.Configuration">
