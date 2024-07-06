@@ -1,7 +1,6 @@
 ﻿using System;
 using DAL.Context;
 using DAL.Entities;
-using FarmManagerBackend.Models.Settings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
