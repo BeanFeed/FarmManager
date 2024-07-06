@@ -4,6 +4,7 @@ using FarmManagerBackend.Models.User;
 using FarmManagerBackend.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.OpenApi.Extensions;
 
 namespace FarmManagerBackend.Filters;
 
@@ -46,7 +47,7 @@ public class Authorize : Attribute, IAsyncActionFilter
         
         if (!Utils.RoleAuthorized(userRole, _role))
         {
-            context.Result = new UnauthorizedObjectResult($"Requires {nameof(_role)} privileges");
+            context.Result = new UnauthorizedObjectResult($"Requires {_role.GetDisplayName()} privileges");
             return;
         }
 
