@@ -22,17 +22,38 @@ public class JwtService
         _jwtSettings = jwtSettings.Value;
         managerContext = context;
     }
+
+    private async Task InvalidateOldSession(Guid sessionId)
+    {
+        Session? session = await managerContext.Sessions.FindAsync(sessionId);
+        if (session is null) throw new UserException("Session not found");
+
+        session.Valid = false;
+        
+        managerContext.Sessions.Update(session);
+        await managerContext.SaveChangesAsync();
+    }
     
-    public string[] EncodeToken(User user)
+    public async Task<string[]> EncodeToken(User user)
     {
         Console.WriteLine(_jwtSettings.Key);
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
         var rsecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.RKey));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
         var rCredentials = new SigningCredentials(rsecurityKey, SecurityAlgorithms.HmacSha256);
-
-        var sessionGuid = Guid.NewGuid().ToString();
         
+        var sGuid = Guid.NewGuid();
+        var sessionGuid = sGuid.ToString();
+
+        Session session = new Session()
+        {
+            Valid = true,
+            UserId = user.Id,
+            SessionId = sGuid
+        };
+        
+        await managerContext.Sessions.AddAsync(session);
+        await managerContext.SaveChangesAsync();
         var claims = new[]
         {
             new Claim("Name", user.Name),
@@ -69,7 +90,7 @@ public class JwtService
     }
     
     
-    public async Task<User> DecodeToken(string eToken)
+    public async Task<User> DecodeToken(string eToken, bool keepHash = false)
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
         var handler = new JwtSecurityTokenHandler();
@@ -91,8 +112,14 @@ public class JwtService
         var id = int.Parse(token.Claims.Where(claim => claim.Type == "Id").ToArray()[0].Value);
         var usr = await SearchUser(id);
         if (usr == null) throw new UserException("User not found");
-        usr.PassHash = null!;
-        return usr;
+        User cUsr = new User()
+        {
+            Id = usr.Id,
+            Name = usr.Name,
+            Role = usr.Role,
+            PassHash = ""
+        };
+        return cUsr;
         
         
     }
@@ -121,9 +148,17 @@ public class JwtService
 
         if (user is null) throw new UserException("User not found");
 
-        user.PassHash = null!;
+        User cUsr = new User()
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Role = user.Role,
+            PassHash = ""
+        };
+
+        await InvalidateOldSession(sessionId);
         
-        return user;
+        return cUsr;
     }
 
     public async Task<bool> IsRefreshValid(string rToken)
