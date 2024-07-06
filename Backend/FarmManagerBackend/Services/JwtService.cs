@@ -203,14 +203,4 @@ public class JwtService
 
         return user;
     }
-    
-    private async Task<User?> SearchUser(string name)
-    {
-        User? user = await managerContext.Users.Where(x => x.Name == name).FirstAsync();
-
-        if (user is null) return null;
-
-        return user;
-    }
-    
 }
