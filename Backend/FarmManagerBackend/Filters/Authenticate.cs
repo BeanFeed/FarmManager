@@ -39,7 +39,7 @@ public class Authenticate : Attribute, IAsyncActionFilter
         var token = context.HttpContext.Request.Cookies["authToken"];
         var rToken = context.HttpContext.Request.Cookies["rAuthToken"];
         
-        if (token is null || rToken is null)
+        if (token is null && rToken is null)
         {
             context.Result = new UnauthorizedObjectResult("User not logged in");
             context.HttpContext.Response.Cookies.Delete("authToken");
@@ -49,6 +49,7 @@ public class Authenticate : Attribute, IAsyncActionFilter
         
         try
         {
+            if (token is null) throw new UserException("Session Invalid");
             await jwtService!.DecodeToken(token);
             context.HttpContext.Items.Add("newToken", token);
         }
