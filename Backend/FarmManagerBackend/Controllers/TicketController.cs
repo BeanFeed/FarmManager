@@ -21,7 +21,7 @@ public class TicketController : ControllerBase
     }
     
     [HttpPost]
-    [Authorize(Role = Roles.Owner)]
+    [Authorize(Role = Roles.HeadTech)]
     public async Task<IActionResult> AddLocation(string Name)
     {
         try
@@ -37,7 +37,7 @@ public class TicketController : ControllerBase
     }
 
     [HttpDelete]
-    [Authorize(Role = Roles.Owner)]
+    [Authorize(Role = Roles.HeadTech)]
     public async Task<IActionResult> RemoveLocation(string Name)
     {
         try
@@ -53,7 +53,7 @@ public class TicketController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Role = Roles.Owner)]
+    [Authorize(Role = Roles.HeadTech)]
     public async Task<IActionResult> AddIssueType(string issue, string repair)
     {
         try
@@ -69,7 +69,7 @@ public class TicketController : ControllerBase
     }
 
     [HttpDelete]
-    [Authorize(Role = Roles.Owner)]
+    [Authorize(Role = Roles.HeadTech)]
     public async Task<IActionResult> RemoveIssueType(string issue, string repair)
     {
         try

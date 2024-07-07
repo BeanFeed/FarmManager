@@ -20,7 +20,7 @@ public class PrinterController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Role = Roles.Owner)]
+    [Authorize(Role = Roles.HeadTech)]
     public async Task<IActionResult> AddPrinter(CreatePrinterModel printerData)
     {
         try
@@ -36,7 +36,7 @@ public class PrinterController : ControllerBase
     }
 
     [HttpDelete]
-    [Authorize(Role = Roles.Owner)]
+    [Authorize(Role = Roles.HeadTech)]
     public async Task<IActionResult> RemovePrinter(string name)
     {
         try
@@ -52,7 +52,7 @@ public class PrinterController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Role = Roles.Owner)]
+    [Authorize(Role = Roles.HeadTech)]
     public async Task<IActionResult> ModifyPrinter(ModifyPrinterModel printerData)
     {
         try
