@@ -133,6 +133,23 @@ public class UserController : ControllerBase
             return BadRequest(e.Message);
         }
     }
+
+    [HttpPost]
+    [Authenticate]
+    public async Task<IActionResult> Logout()
+    {
+        try
+        {
+            var token = HttpContext.Items["newToken"]!.ToString();
+            await _userService.Logout(token);
+        }
+        catch (UserException e)
+        {
+            return BadRequest(e.Message);
+        }
+
+        return Ok("User logged out");
+    }
     
     [HttpPost]
     [Authenticate]

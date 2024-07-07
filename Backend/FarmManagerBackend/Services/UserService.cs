@@ -160,6 +160,18 @@ public class UserService
         return tokens;
     }
 
+    public async Task Logout(string token)
+    {
+        try
+        {
+            await _jwtService.InvalidateOldSession(await _jwtService.GetSessionId(token));
+        }
+        catch (UserException e)
+        {
+            throw;
+        }
+    }
+
     public async Task<string[]> Refresh(string rToken)
     {
         if (!await _jwtService.IsRefreshValid(rToken)) throw new UserException("Session Invalid");

@@ -23,7 +23,7 @@ public class JwtService
         managerContext = context;
     }
 
-    private async Task InvalidateOldSession(Guid sessionId)
+    public async Task InvalidateOldSession(Guid sessionId)
     {
         Session? session = await managerContext.Sessions.FindAsync(sessionId);
         if (session is null) throw new UserException("Session not found");
@@ -32,6 +32,28 @@ public class JwtService
         
         managerContext.Sessions.Update(session);
         await managerContext.SaveChangesAsync();
+    }
+
+    public async Task<Guid> GetSessionId(string token)
+    {
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
+        var handler = new JwtSecurityTokenHandler();
+                   
+        TokenValidationResult result = await handler.ValidateTokenAsync(token,new TokenValidationParameters()
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = securityKey,
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ClockSkew = TimeSpan.Zero,
+            ValidateLifetime = true
+        });
+        if (!result.IsValid) throw new UserException("Session Invalid");
+        JwtSecurityToken eToken = handler.ReadJwtToken(token);
+        
+        var sessionId = Guid.Parse(eToken.Claims.Where(claim => claim.Type == "SessionId").ToArray()[0].Value);
+
+        return sessionId;
     }
     
     public async Task<string[]> EncodeToken(User user)
