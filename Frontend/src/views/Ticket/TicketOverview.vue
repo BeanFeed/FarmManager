@@ -21,7 +21,7 @@ let newTicketOpen = ref(false);
 let printerName = ref();
 let issue = ref("");
 let issueCustom = ref("");
-/*
+
 onMounted(() => {
   let ticketLoadingToast = toast.loading("Loading tickets...", {
     transition: "bounce",
@@ -38,7 +38,7 @@ onMounted(() => {
     toast.update(ticketLoadingToast, {render: error.response.data.length < 30 ? error.response.data : "Error loading tickets. Try refreshing.", type: "error", isLoading: false, autoClose: 2000});
   });
 })
-*/
+
 watch(searchOpt.value,() => {
   console.log("Query");
   let ticketLoadingToast = toast.loading("Loading tickets...", {
@@ -101,7 +101,9 @@ function submitTicket() {
   
   let req = axios.post(backendUrl + "/v1/ticket/openticket", data, {headers: {
       Authorization: tokenStore.getAccess + "," + tokenStore.getRefresh
-    }}).then().catch()
+    }}).then(response => {
+    newTicketOpen.value = false;
+  }).catch()
 }
 </script>
 
