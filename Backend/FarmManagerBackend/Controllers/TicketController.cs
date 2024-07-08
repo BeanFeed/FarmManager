@@ -21,7 +21,7 @@ public class TicketController : ControllerBase
     }
     
     [HttpPost]
-    [Authorize(Role = Roles.HeadTech)]
+    [Authorize(Role = Roles.HeadTechnician)]
     public async Task<IActionResult> AddLocation(string Name)
     {
         try
@@ -37,7 +37,7 @@ public class TicketController : ControllerBase
     }
 
     [HttpDelete]
-    [Authorize(Role = Roles.HeadTech)]
+    [Authorize(Role = Roles.HeadTechnician)]
     public async Task<IActionResult> RemoveLocation(string Name)
     {
         try
@@ -53,7 +53,7 @@ public class TicketController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Role = Roles.HeadTech)]
+    [Authorize(Role = Roles.HeadTechnician)]
     public async Task<IActionResult> AddIssueType(string issue, string repair)
     {
         try
@@ -69,7 +69,7 @@ public class TicketController : ControllerBase
     }
 
     [HttpDelete]
-    [Authorize(Role = Roles.HeadTech)]
+    [Authorize(Role = Roles.HeadTechnician)]
     public async Task<IActionResult> RemoveIssueType(string issue, string repair)
     {
         try
@@ -85,7 +85,7 @@ public class TicketController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetIssueType()
+    public async Task<IActionResult> GetIssueTypes()
     {
         return Ok(await _ticketService.GetIssueTypes());
     }
@@ -124,7 +124,7 @@ public class TicketController : ControllerBase
     }
 
     [HttpDelete]
-    [Authorize(Role = Roles.HeadTech)]
+    [Authorize(Role = Roles.HeadTechnician)]
     public async Task<IActionResult> DeleteTicket(int id)
     {
         try
@@ -140,7 +140,7 @@ public class TicketController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Role = Roles.HeadTech)]
+    [Authorize(Role = Roles.HeadTechnician)]
     public async Task<IActionResult> ModifyTicket(ModifyTicketModel ticketData)
     {
         try
@@ -157,8 +157,8 @@ public class TicketController : ControllerBase
 
     [HttpGet]
     [Authorize(Role = Roles.Technician)]
-    public async Task<IActionResult> GetTickets(string? printerName)
+    public async Task<IActionResult> GetTickets(string? printerName, bool? onlyOpen, bool? sortDescending)
     {
-        return Ok(await _ticketService.GetTickets(printerName));
+        return Ok(await _ticketService.GetTickets(printerName, onlyOpen, sortDescending));
     }
 }

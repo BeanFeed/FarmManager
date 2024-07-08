@@ -81,6 +81,6 @@ class NewContext : ManagerContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseMySql($"server={_databaseConfig.ServerAddress},{_databaseConfig.Port};database={_databaseConfig.Database};user={_databaseConfig.User};password={_databaseConfig.Password}", ServerVersion.AutoDetect($"server={_databaseConfig.ServerAddress},{_databaseConfig.Port};database={_databaseConfig.Database};user={_databaseConfig.User};password={_databaseConfig.Password}"));
+        optionsBuilder.UseSqlite($"Data Source={Path.Join(Directory.GetCurrentDirectory(), "farmmanagerdb.sqlite")}");
     }
 }

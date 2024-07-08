@@ -14,17 +14,17 @@ public class Authorize : Attribute, IAsyncActionFilter
     
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
-        var token = context.HttpContext.Request.Cookies["authToken"];
-        var rToken = context.HttpContext.Request.Cookies["rAuthToken"];
-        var userService = context.HttpContext.RequestServices.GetService<UserService>();
-
-        if (token is null || rToken is null)
+        var auth = context.HttpContext.Request.Headers["Authorization"];
+        
+        if (auth.ToString().Length == 0)
         {
             context.Result = new UnauthorizedObjectResult("User not logged in");
-            context.HttpContext.Response.Cookies.Delete("authToken");
-            context.HttpContext.Response.Cookies.Delete("rAuthToken");
             return;
         }
+        
+        var token = auth.ToString().Split(',')[0];
+        var rToken = auth.ToString().Split(',')[1];
+        var userService = context.HttpContext.RequestServices.GetService<UserService>();
         
         User user;
 
@@ -35,8 +35,6 @@ public class Authorize : Attribute, IAsyncActionFilter
         catch (UserException e)
         {
             context.Result = new BadRequestObjectResult(e.Message);
-            context.HttpContext.Response.Cookies.Delete("authToken");
-            context.HttpContext.Response.Cookies.Delete("rAuthToken");
             return;
         }
 

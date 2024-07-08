@@ -17,29 +17,21 @@ builder.Services.AddScoped<TicketService>();
 builder.Services.AddScoped<PrinterService>();
 
 //Automatically populates database
-DbContextOptionsBuilder<ManagerContext> mOptions = new DbContextOptionsBuilder<ManagerContext>().UseMySql(
-    $"server={builder.Configuration["DatabaseConfiguration:ServerAddress"]},{builder.Configuration["DatabaseConfiguration:Port"]};database={builder.Configuration["DatabaseConfiguration:Database"]};user={builder.Configuration["DatabaseConfiguration:User"]};password={builder.Configuration["DatabaseConfiguration:Password"]}",
-    ServerVersion.AutoDetect(
-        $"server={builder.Configuration["DatabaseConfiguration:ServerAddress"]},{builder.Configuration["DatabaseConfiguration:Port"]};database={builder.Configuration["DatabaseConfiguration:Database"]};user={builder.Configuration["DatabaseConfiguration:User"]};password={builder.Configuration["DatabaseConfiguration:Password"]}"));
 
-var dbContext = new ManagerContext(mOptions.Options);
-dbContext.Database.Migrate();
-dbContext.Dispose();
 //-------
 
-builder.Services.AddDbContext<ManagerContext>(options =>
-    options.UseMySql($"server={builder.Configuration["DatabaseConfiguration:ServerAddress"]},{builder.Configuration["DatabaseConfiguration:Port"]};database={builder.Configuration["DatabaseConfiguration:Database"]};user={builder.Configuration["DatabaseConfiguration:User"]};password={builder.Configuration["DatabaseConfiguration:Password"]}",
-    ServerVersion.AutoDetect($"server={builder.Configuration["DatabaseConfiguration:ServerAddress"]},{builder.Configuration["DatabaseConfiguration:Port"]};database={builder.Configuration["DatabaseConfiguration:Database"]};user={builder.Configuration["DatabaseConfiguration:User"]};password={builder.Configuration["DatabaseConfiguration:Password"]}"),a => a.EnableRetryOnFailure(10)));
+builder.Services.AddDbContext<ManagerContext>();
+
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Main",
         x =>
         {
-            x.WithOrigins(builder.Configuration["Cors:Origin"])
-                .WithMethods("GET","POST","PUT","DELETE","OPTIONS")
+            x.AllowAnyOrigin()
+                .AllowAnyMethod()
                 .AllowAnyHeader()
-                .AllowCredentials();
+                .WithExposedHeaders("Authorization");
         });
 });
 
@@ -63,6 +55,18 @@ if (app.Environment.IsDevelopment())
 //app.UseHttpsRedirection();
 
 app.UseCors("Main");
+/*
+app.Use((context, next) =>
+{
+    context.Response.Headers["Access-Control-Allow-Origin"] = builder.Configuration["Cors:Origin"];
+    context.Response.Headers["Access-Control-Allow-Methods"] = "GET,POST,PUT,DELETE,OPTIONS";
+    context.Response.Headers["Access-Control-Allow-Headers"] = "*";
+    context.Response.Headers["Access-Control-Allow-Credentials"] = "true";
+    return next();
+});
+*/
+
+
 
 app.MapControllers();
 

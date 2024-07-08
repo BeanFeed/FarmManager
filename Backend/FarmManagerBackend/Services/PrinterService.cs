@@ -87,7 +87,7 @@ public class PrinterService
     
     public async Task<Printer> GetPrinter(string name)
     {
-        Printer? printer = await _managerContext.Printers.FindAsync(name);
+        Printer? printer = await _managerContext.Printers.Include(printer => printer.Location).Where(x => x.Name == name).FirstOrDefaultAsync();
         if (printer is null) throw new PrinterException("Printer not found");
         return printer;
     }
@@ -95,8 +95,9 @@ public class PrinterService
     public async Task<Printer[]> GetPrinters(string? name)
     {
         Printer[] printers;
-        if (name is null) printers = await _managerContext.Printers.ToArrayAsync();
-        else printers = await _managerContext.Printers.Where(x => x.Name.Contains(name)).ToArrayAsync();
+        if (name is null) printers = await _managerContext.Printers.Include(printer => printer.Location).ToArrayAsync();
+        else printers = await _managerContext.Printers.Where(x => x.Name.Contains(name))
+            .Include(printer => printer.Location).ToArrayAsync();
         return printers;
     }
 }

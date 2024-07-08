@@ -19,7 +19,6 @@ public class ManagerContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.EnableSensitiveDataLogging();
-        optionsBuilder.UseMySql("server=localhost,3306;database=farmmanagerdev;user=developer;password=65026502",
-            ServerVersion.AutoDetect("server=localhost,3306;database=farmmanagerdev;user=developer;password=65026502"));
+        optionsBuilder.UseSqlite($"Data Source={Path.Join(Directory.GetCurrentDirectory(), "farmmanagerdb.sqlite")}");
     }
 }

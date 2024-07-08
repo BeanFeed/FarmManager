@@ -52,7 +52,7 @@ public class TicketService
 
     public async Task AddIssueType(string issue, string repair)
     {
-        IssueType? issueType = await _managerContext.IssueTypes.Where(x => x.Issue == issue && x.Repair == repair).FirstAsync();
+        IssueType? issueType = await _managerContext.IssueTypes.Where(x => x.Issue == issue && x.Repair == repair).FirstOrDefaultAsync();
         if (issueType is not null) throw new TicketException("Issue type already exists");
 
         IssueType newIssue = new IssueType()
@@ -67,7 +67,7 @@ public class TicketService
 
     public async Task RemoveIssueType(string issue, string repair)
     {
-        IssueType? issueType = await _managerContext.IssueTypes.Where(x => x.Issue == issue && x.Repair == repair).FirstAsync();
+        IssueType? issueType = await _managerContext.IssueTypes.Where(x => x.Issue == issue && x.Repair == repair).FirstOrDefaultAsync();
         if (issueType is null) throw new TicketException("Issue type doesn't exist");
 
         _managerContext.IssueTypes.Remove(issueType);
@@ -192,13 +192,32 @@ public class TicketService
         await _managerContext.SaveChangesAsync();
     }
     
-    public async Task<Ticket[]> GetTickets(string? name)
+    public async Task<ReturnTicket[]> GetTickets(string? name, bool? onlyOpen, bool? sortDescending)
     {
         Ticket[] tickets;
         if (name is not null)
-            tickets = await _managerContext.Tickets.Where(x => x.Printer.Contains(name)).ToArrayAsync();
-        else tickets = await _managerContext.Tickets.ToArrayAsync();
-        return tickets;
+            tickets = await _managerContext.Tickets.Where(x => onlyOpen != null && onlyOpen.Value ? x.DateClosed == null && x.Printer.Contains(name) : x.Printer.Contains(name)).ToArrayAsync();
+        else tickets = await _managerContext.Tickets.Where(x => onlyOpen == null || !onlyOpen.Value || x.DateClosed == null).ToArrayAsync();
+
+        ReturnTicket[] returnTickets = new ReturnTicket[tickets.Length];
+        
+        for (int i = 0; i < tickets.Length; i++)
+        {
+            returnTickets[i] = new ReturnTicket()
+            {
+                TicketId = tickets[i].TicketId,
+                OpenedBy = (await _userService.GetUser(tickets[i].OpenedBy)).Name,
+                Technician = tickets[i].Technician != null ? (await _userService.GetUser(tickets[i].Technician!.Value)).Name : null,
+                DateOpened = tickets[i].DateOpened,
+                DateClosed = tickets[i].DateClosed,
+                Issue = tickets[i].Issue,
+                Repair = tickets[i].Repair,
+                Printer = tickets[i].Printer
+            };
+            
+        }
+        if(sortDescending != null && !sortDescending.Value) Array.Reverse(returnTickets);
+        return returnTickets;
     }
     
     

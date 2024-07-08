@@ -4,6 +4,6 @@ public enum Roles
 {
     Member = 0,
     Technician = 100,
-    HeadTech = 200,
+    HeadTechnician = 200,
     Owner = 300,
 }

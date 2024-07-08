@@ -23,7 +23,7 @@ public class UserService
     {
         #region Check Existing User
 
-        User? eUser = await _managerContext.Users.AsNoTracking().Where(x => x.Name == userData.Name).FirstAsync();
+        User? eUser = await _managerContext.Users.AsNoTracking().Where(x => x.Name == userData.Name).FirstOrDefaultAsync();
 
         if (eUser != null) throw new UserException("Name already used");
 
@@ -114,7 +114,7 @@ public class UserService
         if (userData.Name is not null)
         {
             //Check if name already exists
-            User? existingUser = await _managerContext.Users.AsNoTracking().Where(x => x.Name == userData.Name).FirstAsync();
+            User? existingUser = await _managerContext.Users.AsNoTracking().Where(x => x.Name == userData.Name).FirstOrDefaultAsync();
             if (existingUser is not null) throw new UserException("Name already used");
 
             user.Name = userData.Name;
@@ -143,7 +143,7 @@ public class UserService
     {
         #region Get User
 
-        User? user = await _managerContext.Users.AsNoTracking().Where(x => x.Name == userData.Name).FirstAsync();
+        User? user = await _managerContext.Users.AsNoTracking().Where(x => x.Name == userData.Name).FirstOrDefaultAsync();
 
         if (user is null) throw new UserException("User not found");
 
