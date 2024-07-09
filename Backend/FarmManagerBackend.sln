@@ -4,8 +4,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FarmManagerBackend", "FarmM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAL", "DAL\DAL.csproj", "{0B86C155-296F-4BDC-9631-5E958CDA35CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountRecovery", "AccountRecovery\AccountRecovery.csproj", "{AA805BCC-D57C-4303-8854-FBB6C27D0E76}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,9 +18,5 @@ Global
 		{0B86C155-296F-4BDC-9631-5E958CDA35CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B86C155-296F-4BDC-9631-5E958CDA35CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B86C155-296F-4BDC-9631-5E958CDA35CF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AA805BCC-D57C-4303-8854-FBB6C27D0E76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AA805BCC-D57C-4303-8854-FBB6C27D0E76}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AA805BCC-D57C-4303-8854-FBB6C27D0E76}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AA805BCC-D57C-4303-8854-FBB6C27D0E76}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

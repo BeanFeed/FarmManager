@@ -1,0 +1,1 @@
+http-server -p 3005 -a 0.0.0.0 -P http://0.0.0.0:3005\? site/ & dotnet FarmManagerBackend.dll

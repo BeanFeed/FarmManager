@@ -19,6 +19,6 @@ public class ManagerContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.EnableSensitiveDataLogging();
-        optionsBuilder.UseSqlite($"Data Source={Path.Join(Directory.GetCurrentDirectory(), "farmmanagerdb.sqlite")}");
+        optionsBuilder.UseSqlite($"Data Source={Path.Join(Directory.GetCurrentDirectory(),"data", "farmmanagerdb.sqlite")}");
     }
 }
