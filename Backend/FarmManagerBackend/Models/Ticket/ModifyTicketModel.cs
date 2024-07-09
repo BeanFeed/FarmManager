@@ -8,5 +8,4 @@ public class ModifyTicketModel
     public bool? Reopen { get; set; }
     public string? Issue { get; set; } = null!;
     public string? Repair { get; set; } = null!;
-    public string? PrinterName { get; set; } = null!;
 }

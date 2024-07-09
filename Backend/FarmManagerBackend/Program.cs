@@ -17,7 +17,11 @@ builder.Services.AddScoped<TicketService>();
 builder.Services.AddScoped<PrinterService>();
 
 //Automatically populates database
+DbContextOptionsBuilder<ManagerContext> mOptions = new DbContextOptionsBuilder<ManagerContext>();
 
+var dbContext = new ManagerContext(mOptions.Options);
+dbContext.Database.Migrate();
+dbContext.Dispose();
 //-------
 
 builder.Services.AddDbContext<ManagerContext>();
@@ -29,7 +33,7 @@ builder.Services.AddCors(options =>
         x =>
         {
             x.AllowAnyOrigin()
-                .AllowAnyMethod()
+                .WithMethods("GET","POST","PUT","DELETE","OPTIONS")
                 .AllowAnyHeader()
                 .WithExposedHeaders("Authorization");
         });

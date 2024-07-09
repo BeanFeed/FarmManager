@@ -49,7 +49,8 @@ function login() {
   }).catch(error => {
     toast(error.response.data.length < 30 ? error.response.data : error.body, {
       "type": "error",
-      "closeOnClick": false,
+      "closeOnClick": true,
+      "autoClose": 2000,
       "pauseOnFocusLoss": false,
       "transition": "bounce"
     });

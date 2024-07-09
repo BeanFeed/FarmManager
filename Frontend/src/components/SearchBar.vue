@@ -23,7 +23,7 @@ function checkEmpty() {
       <i class="bi bi-search text-green-500"></i>
     </li>
     <li class="mx-1 w-full">
-      <input v-model="value" @input="checkEmpty" @keyup.enter="update"  class="w-full bg-white text-green-500 focus:outline-none" type="text">
+      <input v-model="value" @input="update" class="w-full bg-white text-green-500 focus:outline-none" type="text">
     </li>
   </ul>
   

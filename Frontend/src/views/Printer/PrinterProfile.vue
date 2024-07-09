@@ -11,6 +11,7 @@ import {useBrowserLocation} from "@vueuse/core";
 import QrcodeVue from "qrcode.vue";
 import {hasPerm} from "../../utils.js";
 import {TokenStore} from "../../store/TokenStore.js";
+import TicketCreateMenu from "../Ticket/TicketCreateMenu.vue";
 
 let route = useRoute();
 let location = useBrowserLocation();
@@ -27,10 +28,12 @@ let printer = ref({
   },
   purchaseDate: "0"
 });
+
+let newTicketOpen = ref(false);
+
 let tickets = ref([]);
 onMounted(() => {
-  console.log("User logged in: " + userStore.isLoggedIn);
-  if (!userStore.isLoggedIn) {
+  if (userStore.id === null) {
     router.push('/login?returnPath=' + route.fullPath);
   }
   let loadingToast = toast.loading("Loading printer...", {
@@ -42,32 +45,68 @@ onMounted(() => {
       Authorization: tokenStore.getAccess + "," + tokenStore.getRefresh
     }}).then(response => {
     tokenStore.setTokens(response.headers["authorization"].split(',')[0],response.headers["authorization"].split(',')[1]);
-    toast.update(loadingToast, {render: "Loaded printers", type: "success", isLoading: false, autoClose: 2000});
+    toast.update(loadingToast, {"closeOnClick": true, render: "Loaded printers", type: "success", isLoading: false, autoClose: 2000});
     printer.value = response.data;
   }).catch(error => {
     console.log("New error");
     console.log(error.body);
-    toast.update(loadingToast, {render: error.response.data.length < 30 ? error.response.data : "Error loading printers. Try refreshing.", type: "error", isLoading: false, autoClose: 2000});
+    toast.update(loadingToast, {"closeOnClick": true, render: error.response.data.length < 30 ? error.response.data : "Error loading printers. Try refreshing.", type: "error", isLoading: false, autoClose: 2000});
   })
   if (hasPerm(userStore, "Technician")) {
     let ticketLoadingToast = toast.loading("Loading tickets...", {
       transition: "bounce",
-      closeOnClick: false,
+      closeOnClick: true,
+      autoClose: 2000,
       pauseOnHover: false
     });
     axios.get(backendUrl + "/v1/ticket/gettickets?printerName=" + printerName, {headers: {
         Authorization: tokenStore.getAccess + "," + tokenStore.getRefresh
       }}).then(response => {
       tokenStore.setTokens(response.headers["authorization"].split(',')[0],response.headers["authorization"].split(',')[1]);
-      toast.update(ticketLoadingToast, {render: "Loaded tickets", type: "success", isLoading: false, autoClose: 2000});
+      toast.update(ticketLoadingToast, {"closeOnClick": true, render: "Loaded tickets", type: "success", isLoading: false, autoClose: 2000});
       tickets.value = response.data;
     }).catch(error => {
-      toast.update(ticketLoadingToast, {render: error.response.data.length < 30 ? error.response.data : "Error loading tickets. Try refreshing.", type: "error", isLoading: false, autoClose: 2000});
+      toast.update(ticketLoadingToast, {"closeOnClick": true, render: error.response.data.length < 30 ? error.response.data : "Error loading tickets. Try refreshing.", type: "error", isLoading: false, autoClose: 2000});
     });
   }
   
 })
 
+const qrcode = ref(null)
+const downloadQrCode = () => {
+  let canvasImage = qrcode.value.getElementsByTagName('canvas')[0].toDataURL('image/png');
+  let xhr = new XMLHttpRequest();
+  xhr.responseType = 'blob';
+  xhr.onload = function () {
+    let a = document.createElement('a');
+    a.href = window.URL.createObjectURL(xhr.response);
+    a.download = 'qrcode.png';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
+  xhr.open('GET', canvasImage);
+  xhr.send();
+}
+
+function refreshTickets() {
+  if (!hasPerm(userStore,'Technician')) return;
+  axios.get(backendUrl + "/v1/ticket/gettickets?printerName=" + printerName, {headers: {
+      Authorization: tokenStore.getAccess + "," + tokenStore.getRefresh
+    }}).then(response => {
+    tokenStore.setTokens(response.headers["authorization"].split(',')[0],response.headers["authorization"].split(',')[1]);
+    tickets.value = response.data;
+  }).catch(error => {
+    toast(error.response.data.length < 30 ? error.response.data : error.message, {
+      "type": "error",
+      "closeOnClick": true,
+      "autoClose": 2000,
+      "pauseOnFocusLoss": false,
+      "transition": "bounce"
+    });
+  });
+}
 </script>
 
 <template>
@@ -102,11 +141,14 @@ onMounted(() => {
     
     <div class="flex items-center justify-center mt-8">
       <div class="m-10">
-        <div class="bg-green-500 p-4 rounded-3xl text-xl text-white hover:bg-green-600 cursor-pointer">Create ticket</div>
+        <div @click="newTicketOpen = true" class="bg-green-500 p-4 rounded-3xl text-xl text-white hover:bg-green-600 cursor-pointer">Create ticket</div>
       </div>
       <div class="m-10">
         <p class="text-lg">Profile Code</p>
-        <QrcodeVue :value="location.href" level="L" render-as="canvas" />
+        <div @click="downloadQrCode" ref="qrcode" class="cursor-pointer" title="Download">
+          <QrcodeVue :value="location.href" level="L" render-as="canvas" />
+        </div>
+        
       </div>
     </div>
     <template v-if="hasPerm(userStore,'Technician')">
@@ -140,6 +182,8 @@ onMounted(() => {
       </div>
     </template>
   </div>
+  
+  <TicketCreateMenu :printerName="printer.name" v-if="newTicketOpen" @complete="newTicketOpen = false; refreshTickets();" />
 </div>
 </template>
 

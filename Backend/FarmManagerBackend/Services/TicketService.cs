@@ -162,6 +162,7 @@ public class TicketService
         if (ticketData.Reopen is not null && ticketData.Reopen.Value)
         {
             ticket.DateClosed = null;
+            ticket.Repair = null;
         }
 
         if (ticketData.Issue is not null)
@@ -172,20 +173,6 @@ public class TicketService
         if (ticketData.Repair is not null)
         {
             ticket.Repair = ticketData.Repair;
-        }
-
-        if (ticketData.PrinterName is not null)
-        {
-            try
-            {
-                await _printerService.GetPrinter(ticketData.PrinterName);
-            }
-            catch (PrinterException e)
-            {
-                throw new TicketException($"Printer {ticketData.PrinterName} not found");
-            }
-
-            ticket.Printer = ticketData.PrinterName;
         }
 
         _managerContext.Tickets.Update(ticket);

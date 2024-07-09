@@ -9,12 +9,19 @@ import {backendUrl} from "../../main.js";
 import SearchBar from "../../components/SearchBar.vue";
 import {router} from "../../router.js";
 import {TokenStore} from "../../store/TokenStore.js";
+import {UserStore} from "../../store/UserStore.js";
 
 let printers = ref({});
+
+let route = useRoute();
 let tokenStore = TokenStore();
+let userStore = UserStore();
 
 onMounted(() => {
-  
+  console.log(userStore.id);
+  if (userStore.id === null) {
+    router.push('/login?returnPath=' + route.fullPath);
+  }
   console.log()
   
   let loadingToast = toast.loading("Loading printers...", {
@@ -27,10 +34,10 @@ onMounted(() => {
     }}).then(response => {
     tokenStore.setTokens(response.headers["authorization"].split(',')[0],response.headers["authorization"].split(',')[1]);
     printers.value = response.data;
-    toast.update(loadingToast, {render: "Loaded printers", type: "success", isLoading: false, autoClose: 2000});
+    toast.update(loadingToast, {"closeOnClick": true, render: "Loaded printers", type: "success", isLoading: false, autoClose: 2000});
   }).catch(error => {
     console.log(error.toJSON());
-    toast.update(loadingToast, {render: error.response.data.length < 30 ? error.response.data : "Error loading printers. Try refreshing.", type: "error", isLoading: false, autoClose: 2000});
+    toast.update(loadingToast, {"closeOnClick": true, render: error.response.data.length < 30 ? error.response.data : "Error loading printers. Try refreshing.", type: "error", isLoading: false, autoClose: 2000});
     
   })
 });
@@ -45,7 +52,8 @@ function search(name) {
     console.log(error);
     toast(error.response.data.length < 30 ? error.response.data : error.message, {
       "type": "error",
-      "closeOnClick": false,
+      "closeOnClick": true,
+      "autoClose": 2000,
       "pauseOnFocusLoss": false,
       "transition": "bounce"
     });

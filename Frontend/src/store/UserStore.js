@@ -9,10 +9,10 @@ export const UserStore = defineStore('user',{
         }
     },
     getters: {
-        getUser(state) {
-            return state.id !== null ? state : null;
+        getUser() {
+            return this.id !== null ? this : null;
         },
-        isLoggedIn(state) {return state.id !== null}
+        isLoggedIn() {return this.id !== null}
     },
     actions: {
         setUser(data) {

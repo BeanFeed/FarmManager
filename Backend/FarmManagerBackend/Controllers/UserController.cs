@@ -72,7 +72,7 @@ public class UserController : ControllerBase
     
     [HttpGet]
     [Authenticate]
-    [Authorize(Role = Roles.Owner)]
+    [Authorize(Role = Roles.HeadTechnician)]
     public async Task<IActionResult> GetUsers()
     {
         return Ok(await _userService.GetUsers());

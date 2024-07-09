@@ -213,7 +213,7 @@ public class JwtService
         if (session is null) return false;
 
         if (session.UserId != userId || !session.Valid) return false;
-
+        
         return true;
     }
 
