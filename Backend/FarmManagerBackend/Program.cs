@@ -32,10 +32,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("Main",
         x =>
         {
-            x.AllowAnyOrigin()
-                .WithMethods("GET","POST","PUT","DELETE","OPTIONS")
+            x.WithOrigins(builder.Configuration["Cors:Origin"])
+                .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .AllowAnyHeader()
-                .WithExposedHeaders("Authorization");
+                .AllowCredentials();
         });
 });
 
@@ -56,7 +56,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//app.UseHttpsRedirection();
+if(bool.Parse(builder.Configuration["UseHttpsRedirection"])) app.UseHttpsRedirection();
 
 app.UseCors("Main");
 /*

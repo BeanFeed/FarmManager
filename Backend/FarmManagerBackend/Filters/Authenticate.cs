@@ -16,20 +16,36 @@ public class Authenticate : Attribute, IAsyncActionFilter
         var userService = context.HttpContext.RequestServices.GetService<UserService>();
         var jwtService = context.HttpContext.RequestServices.GetService<JwtService>();
         
-        var auth = context.HttpContext.Request.Headers["Authorization"];
-
-        context.HttpContext.Response.Headers["Authorization"] = context.HttpContext.Request.Headers["Authorization"];
+        var jwtOpt = new CookieOptions()
+            {
+                Domain = context.HttpContext.Request.Host.Host,
+                HttpOnly = true,
+                Expires = DateTimeOffset.UtcNow.AddMinutes(15),
+                Secure = settings.JwtConfig.Secure,
+                SameSite = Utils.GetSSM(settings.JwtConfig.SSM)
+                
+            };
+            
+        var rJwtOpt = new CookieOptions()
+            {
+                Domain = context.HttpContext.Request.Host.Host,
+                HttpOnly = true,
+                Expires = DateTimeOffset.UtcNow.AddDays(7),
+                Secure = settings.JwtConfig.Secure,
+                SameSite = Utils.GetSSM(settings.JwtConfig.SSM)
+                
+            };
+            
+        var token = context.HttpContext.Request.Cookies["authToken"];
+        var rToken = context.HttpContext.Request.Cookies["rAuthToken"];
         
-        if (auth.ToString().Length == 0)
+        if (token is null && rToken is null)
         {
             context.Result = new UnauthorizedObjectResult("User not logged in");
+            context.HttpContext.Response.Cookies.Delete("authToken");
+            context.HttpContext.Response.Cookies.Delete("rAuthToken");
             return;
         }
-        
-        var token = auth.ToString().Split(',')[0];
-        var rToken = auth.ToString().Split(',')[1];
-        
-        
         
         try
         {
@@ -44,13 +60,16 @@ public class Authenticate : Attribute, IAsyncActionFilter
                 try
                 {
                     var tokens = await userService!.Refresh(rToken);
-                    context.HttpContext.Response.Headers.Authorization = $"{tokens[0]},{tokens[1]}";
+                    context.HttpContext.Response.Cookies.Append("authToken", tokens[0], jwtOpt);
+                    context.HttpContext.Response.Cookies.Append("rAuthToken", tokens[1], rJwtOpt);
                     context.HttpContext.Items.Add("newToken", tokens[0]);
                     token = tokens[0];
                 }
                 catch (UserException e2)
                 {
                     context.Result = new BadRequestObjectResult(e2.Message);
+                    context.HttpContext.Response.Cookies.Delete("authToken");
+                    context.HttpContext.Response.Cookies.Delete("rAuthToken");
                     return;
                 }
             }
@@ -71,6 +90,8 @@ public class Authenticate : Attribute, IAsyncActionFilter
         catch (UserException e)
         {
             context.Result = new BadRequestObjectResult(e.Message);
+            context.HttpContext.Response.Cookies.Delete("authToken");
+            context.HttpContext.Response.Cookies.Delete("rAuthToken");
             return;
         }
 

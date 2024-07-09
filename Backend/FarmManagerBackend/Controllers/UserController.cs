@@ -101,8 +101,30 @@ public class UserController : ControllerBase
         {
             var tokens = await _userService.Login(userData);
 
+            #region Jwt Options
+
+            var jwtOpt = new CookieOptions()
+            {
+                Domain = Request.Host.Host,
+                HttpOnly = true,
+                Expires = DateTimeOffset.UtcNow.AddHours(2),
+                Secure = _settings.JwtConfig.Secure,
+                SameSite = Utils.GetSSM(_settings.JwtConfig.SSM)
+            };
             
-            Response.Headers.Authorization = $"{tokens[0]},{tokens[1]}";
+            var rJwtOpt = new CookieOptions()
+            {
+                Domain = Request.Host.Host,
+                HttpOnly = true,
+                Expires = DateTimeOffset.UtcNow.AddDays(7),
+                Secure = _settings.JwtConfig.Secure,
+                SameSite = Utils.GetSSM(_settings.JwtConfig.SSM)
+            };
+
+            #endregion
+            
+            Response.Cookies.Append("authToken", tokens[0], jwtOpt);
+            Response.Cookies.Append("rAuthToken", tokens[1], rJwtOpt);
             
             return Ok("User logged in");
         }
@@ -120,6 +142,8 @@ public class UserController : ControllerBase
         {
             var token = HttpContext.Items["newToken"]!.ToString();
             await _userService.Logout(token);
+            Response.Cookies.Delete("authToken");
+            Response.Cookies.Delete("rAuthToken");
         }
         catch (UserException e)
         {

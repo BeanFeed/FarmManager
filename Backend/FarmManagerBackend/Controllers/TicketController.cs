@@ -52,6 +52,12 @@ public class TicketController : ControllerBase
         return Ok("Removed location");
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetLocations()
+    {
+        return Ok(await _ticketService.GetLocations());
+    }
+
     [HttpPost]
     [Authorize(Role = Roles.HeadTechnician)]
     public async Task<IActionResult> AddIssueType(string issue, string repair)
