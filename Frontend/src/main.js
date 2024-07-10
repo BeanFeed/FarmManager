@@ -14,7 +14,7 @@ const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate)
 
 const location = useBrowserLocation().value;
-export const backendUrl = location.protocol + "//" + location.hostname + (location.protocol === "http:" ? ":5001" : ":5000");
+export const backendUrl = import.meta.env.DEV ? location.protocol + "//" + location.hostname + (location.protocol === "http:" ? ":5001" : ":5000") : "https://api." + location.hostname
 
 
 createApp(App).use(router).use(pinia).mount('#app')

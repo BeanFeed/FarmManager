@@ -76,10 +76,31 @@ public class TicketService
 
     public async Task<IssueType[]> GetIssueTypes()
     {
-        IssueType[] issueTypes = await _managerContext.IssueTypes.ToArrayAsync();
+        IssueType[] issueTypes = await _managerContext.IssueTypes.OrderBy(x => x.Issue).ToArrayAsync();
         return issueTypes;
     }
-    
+
+    public async Task<string[]> GetIssueVariants(string? repairsByIssue = null)
+    {
+        List<IssueType> issueTypes = await _managerContext.IssueTypes.ToListAsync();
+        List<string> returnList = new List<string>();
+        if (repairsByIssue != null)
+        {
+            foreach (IssueType issue in issueTypes)
+            {
+                if(issue.Issue == repairsByIssue) returnList.Add(issue.Repair);
+            }
+        }
+        else
+        {
+            foreach (IssueType issue in issueTypes)
+            {
+                if(!returnList.Contains(issue.Issue)) returnList.Add(issue.Issue);
+            }
+        }
+
+        return returnList.ToArray();
+    }
     public async Task OpenTicket(CreateTicketModel ticketData, int openedBy)
     {
         try

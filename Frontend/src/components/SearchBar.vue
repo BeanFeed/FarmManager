@@ -3,6 +3,12 @@ import {ref} from "vue";
 
 const emit = defineEmits(['update'])
 
+const props = defineProps({
+  "altColor": {
+    default: "bg-white"
+  }
+})
+
 let value = ref();
 function update() {
   emit('update', value);
@@ -17,13 +23,13 @@ function checkEmpty() {
 </script>
 
 <template>
-<div class="max-w-lg w-full bg-white p-3 rounded-3xl">
+<div class="max-w-lg w-full p-3 rounded-3xl" :class="altColor">
   <ul class="flex items-center">
     <li class="mx-1">
       <i class="bi bi-search text-green-500"></i>
     </li>
     <li class="mx-1 w-full">
-      <input v-model="value" @input="update" class="w-full bg-white text-green-500 focus:outline-none" type="text">
+      <input v-model="value" @input="update" class="w-full text-green-500 focus:outline-none" :class="altColor" type="text">
     </li>
   </ul>
   

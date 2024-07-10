@@ -96,6 +96,19 @@ public class TicketController : ControllerBase
         return Ok(await _ticketService.GetIssueTypes());
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetIssueVariants(string? repairByIssue)
+    {
+        if (repairByIssue != null)
+        {
+            return Ok(await _ticketService.GetIssueVariants(repairByIssue));
+        }
+        else
+        {
+            return Ok(await _ticketService.GetIssueVariants());
+        }
+    }
+
     [HttpPost]
     public async Task<IActionResult> OpenTicket(CreateTicketModel ticketData)
     {

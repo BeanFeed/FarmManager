@@ -5,13 +5,14 @@ import {useRoute} from "vue-router";
 import {useWindowSize} from "@vueuse/core";
 import {UserStore} from "../../store/UserStore.js";
 import {hasPerm} from "../../utils.js";
-import {TokenStore} from "../../store/TokenStore.js";
+import axios from "axios";
+import {backendUrl} from "../../main.js";
+import {toast} from "vue3-toastify";
 let route = useRoute()
 let isOpenState = ref(false)
 const { width } = useWindowSize()
 
 const userStore = UserStore();
-const tokenStore = TokenStore();
 
 let options = ref({
   Printers: {
@@ -29,7 +30,26 @@ let options = ref({
 })
 
 
-
+onMounted(() => {
+  let req = axios.get(backendUrl + "/v1/user/me", {withCredentials: true}).then(res => {
+    userStore.setUser({
+      name: res.data.name,
+      id: res.data.id,
+      role: res.data.role === "HeadTechnician" ? "Head Technician" : res.data.role
+    });
+  }).catch(error => {
+    toast(error.response.data.length < 30 ? error.response.data : error.body, {
+      "type": "error",
+      "closeOnClick": true,
+      "autoClose": 2000,
+      "pauseOnFocusLoss": false,
+      "transition": "bounce"
+    });
+    if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
+      router.push('/login');
+    }
+  });
+})
 
 function getColor(setRoute) {
   if (route.fullPath.startsWith(setRoute)) return "bg-gray-200";
@@ -38,7 +58,7 @@ function getColor(setRoute) {
 
 function logout() {
   userStore.clearUser();
-  tokenStore.clearTokens();
+  let req = axios.post(backendUrl + "/v1/user/logout", {}, {withCredentials: true}).then().catch();
   router.push("/login")
 }
 </script>

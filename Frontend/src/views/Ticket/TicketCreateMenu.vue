@@ -1,5 +1,7 @@
 <script setup>
 
+import {router} from "../../router.js";
+
 let emits = defineEmits(['complete'])
 let props = defineProps({'printerName':{
   default: null
@@ -9,9 +11,9 @@ import {onMounted, ref} from "vue";
 import axios from "axios";
 import {backendUrl} from "../../main.js";
 import {toast} from "vue3-toastify";
-import {TokenStore} from "../../store/TokenStore.js";
+import {useRoute} from "vue-router";
 
-let tokenStore = TokenStore();
+let route = useRoute();
 
 let printerName = ref("");
 let issue = ref("");
@@ -23,11 +25,7 @@ let showRequired = ref(false);
 onMounted(() => {
   if (props.printerName !== null) printerName.value = props.printerName;
   else {
-    let printerReq = axios.get(backendUrl + "/v1/printer/getprinters", {headers: {
-        Authorization: tokenStore.getAccess + "," + tokenStore.getRefresh
-      }}).then(response => {
-      //console.log(response.headers)
-      tokenStore.setTokens(response.headers["authorization"].split(',')[0],response.headers["authorization"].split(',')[1]);
+    let printerReq = axios.get(backendUrl + "/v1/printer/getprinters", {withCredentials: true}).then(response => {
       printerOptions.value = response.data;
     }).catch(error => {
       toast(error.response.data.length < 30 ? error.response.data : error.body, {
@@ -37,14 +35,13 @@ onMounted(() => {
         "pauseOnFocusLoss": false,
         "transition": "bounce"
       });
+      if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
+        router.push('/login');
+      }
     });
   }
   
-  let issueReq = axios.get(backendUrl + "/v1/ticket/getissuetypes", {headers: {
-      Authorization: tokenStore.getAccess + "," + tokenStore.getRefresh
-    }}).then(response => {
-    //console.log(response.headers)
-    tokenStore.setTokens(response.headers["authorization"].split(',')[0],response.headers["authorization"].split(',')[1]);
+  let issueReq = axios.get(backendUrl + "/v1/ticket/getissuevariants", {withCredentials: true}).then(response => {
     issueTypes.value = response.data;
   }).catch(error => {
     console.log(error)
@@ -55,6 +52,9 @@ onMounted(() => {
       "pauseOnFocusLoss": false,
       "transition": "bounce"
     });
+    if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
+      router.push('/login');
+    }
     
   });
 })
@@ -70,11 +70,7 @@ function submitTicket() {
   }
   issue = ref("");
   issueCustom = ref("");
-  let req = axios.post(backendUrl + "/v1/ticket/openticket", data, {headers: {
-      Authorization: tokenStore.getAccess + "," + tokenStore.getRefresh
-    }}).then(response => {
-    tokenStore.setTokens(response.headers["authorization"].split(',')[0],response.headers["authorization"].split(',')[1]);
-
+  let req = axios.post(backendUrl + "/v1/ticket/openticket", data, {withCredentials: true}).then(response => {
     printerName = ref("");
     issue = ref("");
     issueCustom = ref("");
@@ -92,7 +88,9 @@ function submitTicket() {
       "pauseOnFocusLoss": false,
       "transition": "bounce"
     });
-
+    if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
+      router.push('/login');
+    }
   });
 }
 
@@ -125,7 +123,7 @@ function cancel() {
         </template>
         <p class="text-left">Issue <span v-if="showRequired" class="text-red-500">Required</span></p>
         <select v-model="issue" class="text-green-500 p-1 bg-gray-200 rounded-lg">
-          <option v-for="(issue, index) in issueTypes" :value="issue.issue">{{issue.issue}}</option>
+          <option v-for="(issue, index) in issueTypes" :value="issue">{{issue}}</option>
           <option value="custom">Custom</option>
         </select>
         <template v-if="issue==='custom'">
@@ -139,10 +137,10 @@ function cancel() {
         </template>
         <hr class="my-2">
         <div class="flex justify-center w-full">
-          <div @click="submitTicket" class="bg-green-500 hover:bg-green-600 cursor-pointer p-2 rounded-lg mr-1">
+          <div @click="submitTicket" class="w-full bg-green-500 hover:bg-green-600 cursor-pointer p-2 rounded-lg mr-1">
             <p class="text-white">Submit</p>
           </div>
-          <div @click="cancel" class="bg-gray-200 hover:bg-gray-300 cursor-pointer p-2 rounded-lg ml-1">
+          <div @click="cancel" class="w-full bg-gray-200 hover:bg-gray-300 cursor-pointer p-2 rounded-lg ml-1">
             <p>Cancel</p>
           </div>
         </div>

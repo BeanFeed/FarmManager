@@ -8,19 +8,20 @@ import { toast } from "vue3-toastify";
 import {backendUrl} from "../../main.js";
 import SearchBar from "../../components/SearchBar.vue";
 import {router} from "../../router.js";
-import {TokenStore} from "../../store/TokenStore.js";
 import {UserStore} from "../../store/UserStore.js";
+import {hasPerm} from "../../utils.js";
+import PrinterModifyMenu from "./PrinterModifyMenu.vue";
+import PrinterAddMenu from "./PrinterAddMenu.vue";
 
 let printers = ref({});
 
 let route = useRoute();
-let tokenStore = TokenStore();
 let userStore = UserStore();
 
 onMounted(() => {
   console.log(userStore.id);
   if (userStore.id === null) {
-    router.push('/login?returnPath=' + route.fullPath);
+    router.push('/login');
   }
   console.log()
   
@@ -29,24 +30,20 @@ onMounted(() => {
     closeOnClick: false,
     pauseOnHover: false
   });
-  let req = axios.get(backendUrl + "/v1/printer/getprinters", {headers: {
-      Authorization: tokenStore.getAccess + "," + tokenStore.getRefresh
-    }}).then(response => {
-    tokenStore.setTokens(response.headers["authorization"].split(',')[0],response.headers["authorization"].split(',')[1]);
+  let req = axios.get(backendUrl + "/v1/printer/getprinters", {withCredentials: true}).then(response => {
     printers.value = response.data;
     toast.update(loadingToast, {"closeOnClick": true, render: "Loaded printers", type: "success", isLoading: false, autoClose: 2000});
   }).catch(error => {
     console.log(error.toJSON());
     toast.update(loadingToast, {"closeOnClick": true, render: error.response.data.length < 30 ? error.response.data : "Error loading printers. Try refreshing.", type: "error", isLoading: false, autoClose: 2000});
-    
+    if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
+      router.push('/login');
+    }
   })
 });
 
 function search(name) {
-  axios.get(backendUrl + "/v1/printer/getprinters?name=" + name, {headers: {
-      Authorization: tokenStore.getAccess + "," + tokenStore.getRefresh
-    }}).then(response => {
-    tokenStore.setTokens(response.headers["authorization"].split(',')[0],response.headers["authorization"].split(',')[1]);
+  axios.get(backendUrl + "/v1/printer/getprinters?name=" + name, {withCredentials: true}).then(response => {
     printers.value = response.data;
   }).catch(error => {
     console.log(error);
@@ -57,6 +54,59 @@ function search(name) {
       "pauseOnFocusLoss": false,
       "transition": "bounce"
     });
+    if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
+      router.push('/login');
+    }
+  })
+}
+
+let newPrinter = ref(false);
+
+let openModify = ref(false)
+let modifyingPrinter = ref({});
+function modifyPrinter(printer) {
+  modifyingPrinter.value = printer;
+  openModify.value = true;
+}
+
+function closeModifyPrinter() {
+  openModify.value = false
+  modifyingPrinter.value = {};
+
+  axios.get(backendUrl + "/v1/printer/getprinters", {withCredentials: true}).then(response => {
+    printers.value = response.data;
+  }).catch(error => {
+    console.log(error);
+    toast(error.response.data.length < 30 ? error.response.data : error.message, {
+      "type": "error",
+      "closeOnClick": true,
+      "autoClose": 2000,
+      "pauseOnFocusLoss": false,
+      "transition": "bounce"
+    });
+    if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
+      router.push('/login');
+    }
+  })
+}
+
+function closeNewPrinter() {
+  newPrinter.value = false;
+
+  axios.get(backendUrl + "/v1/printer/getprinters", {withCredentials: true}).then(response => {
+    printers.value = response.data;
+  }).catch(error => {
+    console.log(error);
+    toast(error.response.data.length < 30 ? error.response.data : error.message, {
+      "type": "error",
+      "closeOnClick": true,
+      "autoClose": 2000,
+      "pauseOnFocusLoss": false,
+      "transition": "bounce"
+    });
+    if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
+      router.push('/login');
+    }
   })
 }
 </script>
@@ -64,9 +114,15 @@ function search(name) {
 <template>
 <div class="fixHeight w-screen flex items-center justify-center p-3">
   <div class="w-[75vw]">
-    <SearchBar  @update="args => search(args.value)" />
-    <div class="bg-white h-[50vh] p-6 rounded-3xl mt-4">
-      <div class="w-full h-full overflow-auto scrollbar scrollbar-track-white">
+    <div class="ml:flex items-center">
+      <SearchBar  @update="args => search(args.value)" />
+      <a @click="newPrinter = true" class="bg-green-500 hover:bg-green-600 text-white hover:text-white cursor-pointer h-10 mx-1 mt-2 ml:mt-0 px-3 py-1 rounded-xl flex items-center justify-center">
+        Add Printer
+      </a>
+    </div>
+    
+    <div class="bg-white h-[50vh] p-6 rounded-3xl mt-2 ml:mt-4">
+      <div class="w-full h-full overflow-auto">
         <table
             class="min-w-full text-left text-surface ">
           <thead
@@ -89,7 +145,12 @@ function search(name) {
             <td class="whitespace-nowrap px-6 py-4">{{ printer.model }}</td>
             <td class="whitespace-nowrap px-6 py-4">{{ printer.location.name }}</td>
             <td class="whitespace-nowrap px-6 py-4">{{ new Date(printer.purchaseDate).toLocaleDateString()}}</td>
-            <td class="whitespace-nowrap px-6 py-4"><a @click="router.push('/printers/profile/' + printer.name)" class="bg-green-500 p-2 rounded-2xl text-white hover:bg-green-600 hover:text-white cursor-pointer">View printer</a></td>
+            <td class="whitespace-nowrap px-6 py-4"><div class="flex items-center">
+              <a @click="router.push('/printers/profile/' + printer.name)" class="bg-green-500 p-2 rounded-2xl hover:bg-green-600 text-white hover:text-white cursor-pointer">View printer</a>
+              <template v-if="hasPerm(userStore, 'Head Technician')">
+                <a @click="modifyPrinter(printer)" class="bg-gray-200 p-2 rounded-2xl hover:bg-gray-300 text-black hover:text-black cursor-pointer h-full px-3 flex justify-center items-center ml-2">Modify</a>
+              </template>
+            </div></td>
           </tr>
 
           </tbody>
@@ -100,6 +161,8 @@ function search(name) {
     
   </div>
   
+  <PrinterModifyMenu v-if="openModify" :printer="modifyingPrinter" @close="closeModifyPrinter"/>
+  <PrinterAddMenu v-if="newPrinter" @close="closeNewPrinter"/>
   
 </div>
 </template>

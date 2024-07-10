@@ -72,10 +72,10 @@ public class UserController : ControllerBase
     
     [HttpGet]
     [Authenticate]
-    [Authorize(Role = Roles.HeadTechnician)]
-    public async Task<IActionResult> GetUsers()
+    [Authorize(Role = Roles.Owner)]
+    public async Task<IActionResult> GetUsers(string? name)
     {
-        return Ok(await _userService.GetUsers());
+        return Ok(name == null ? await _userService.GetUsers() : await _userService.GetUsers(name));
     }
     
     [HttpPost]

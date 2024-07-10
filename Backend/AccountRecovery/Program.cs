@@ -2,7 +2,6 @@
 using DAL.Context;
 using DAL.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace AccountRecovery;
 
@@ -16,22 +15,9 @@ class Program
             Environment.Exit(-1);
         }
         
-        var builder = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory());
-        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-        {
-            builder.AddJsonFile("appsettings.Development.json", false);
-        }
-        else
-        {
-            builder.AddJsonFile("appsettings.json", false);
-        }
+        
 
-        IConfiguration config = builder.Build();
-
-        var dbSettings = config.GetSection("DatabaseConfiguration").Get<DatabaseConfig>();
-
-        var context = new NewContext(dbSettings);
+        var context = new ManagerContext();
         
         var username = args[1];
         var passhash = BCrypt.Net.BCrypt.HashPassword(args[2]);

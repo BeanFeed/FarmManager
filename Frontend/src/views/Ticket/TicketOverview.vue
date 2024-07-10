@@ -6,12 +6,11 @@ import {router} from "../../router.js";
 import {toast} from "vue3-toastify";
 import axios from "axios";
 import {backendUrl} from "../../main.js";
-import {TokenStore} from "../../store/TokenStore.js";
-import TextInput from "../../components/TextInput.vue";
 import TicketCreateMenu from "./TicketCreateMenu.vue";
 import TicketModifyMenu from "./TicketModifyMenu.vue";
 import {UserStore} from "../../store/UserStore.js";
 import {useRoute} from "vue-router";
+import {hasPerm} from "../../utils.js";
 
 let searchOpt = ref({
   searchWord: "",
@@ -19,7 +18,6 @@ let searchOpt = ref({
   sortDescending: false,
 });
 
-let tokenStore = TokenStore();
 let tickets = ref([]);
 let newTicketOpen = ref(false);
 let closingTicket = ref({
@@ -39,7 +37,7 @@ let userStore = UserStore();
 let route = useRoute();
 onMounted(() => {
   if (userStore.id === null) {
-    router.push('/login?returnPath=' + route.fullPath);
+    router.push('/login');
   }
   
   let ticketLoadingToast = toast.loading("Loading tickets...", {
@@ -47,22 +45,19 @@ onMounted(() => {
     closeOnClick: false,
     pauseOnHover: false
   });
-  axios.get(backendUrl + "/v1/ticket/gettickets?printerName=" + searchOpt.value.searchWord + "&onlyOpen=" + searchOpt.value.onlyOpen + "&sortDescending=" + searchOpt.value.sortDescending, {headers: {
-      Authorization: tokenStore.getAccess + "," + tokenStore.getRefresh
-      }}).then(response => {
-      tokenStore.setTokens(response.headers["authorization"].split(',')[0],response.headers["authorization"].split(',')[1]);
+  axios.get(backendUrl + "/v1/ticket/gettickets?printerName=" + searchOpt.value.searchWord + "&onlyOpen=" + searchOpt.value.onlyOpen + "&sortDescending=" + searchOpt.value.sortDescending, {withCredentials: true}).then(response => {
     toast.update(ticketLoadingToast, {"closeOnClick": true, render: "Loaded tickets", type: "success", isLoading: false, autoClose: 2000});
     tickets.value = response.data;
   }).catch(error => {
     toast.update(ticketLoadingToast, {"closeOnClick": true, render: error.response.data.length < 30 ? error.response.data : "Error loading tickets. Try refreshing.", type: "error", isLoading: false, autoClose: 2000});
+    if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
+      router.push('/login');
+    }
   });
 })
 
 watch(searchOpt.value,() => {
-  axios.get(backendUrl + "/v1/ticket/gettickets?printerName=" + searchOpt.value.searchWord + "&onlyOpen=" + searchOpt.value.onlyOpen + "&sortDescending=" + searchOpt.value.sortDescending, {headers: {
-      Authorization: tokenStore.getAccess + "," + tokenStore.getRefresh
-    }}).then(response => {
-    tokenStore.setTokens(response.headers["authorization"].split(',')[0],response.headers["authorization"].split(',')[1]);
+  axios.get(backendUrl + "/v1/ticket/gettickets?printerName=" + searchOpt.value.searchWord + "&onlyOpen=" + searchOpt.value.onlyOpen + "&sortDescending=" + searchOpt.value.sortDescending, {withCredentials: true}).then(response => {
     tickets.value = response.data;
     console.log(tickets.value)
   }).catch(error => {
@@ -73,7 +68,10 @@ watch(searchOpt.value,() => {
       "pauseOnFocusLoss": false,
       "transition": "bounce"
     });
-    });
+    if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
+      router.push('/login');
+    }
+  });
 })
 
 let issueTypes = ref([]);
@@ -84,31 +82,23 @@ function refreshTickets(){
     closeOnClick: false,
     pauseOnHover: false
   });
-  axios.get(backendUrl + "/v1/ticket/gettickets?printerName=" + searchOpt.value.searchWord + "&onlyOpen=" + searchOpt.value.onlyOpen + "&sortDescending=" + searchOpt.value.sortDescending, {headers: {
-      Authorization: tokenStore.getAccess + "," + tokenStore.getRefresh
-    }}).then(response => {
-    tokenStore.setTokens(response.headers["authorization"].split(',')[0],response.headers["authorization"].split(',')[1]);
+  axios.get(backendUrl + "/v1/ticket/gettickets?printerName=" + searchOpt.value.searchWord + "&onlyOpen=" + searchOpt.value.onlyOpen + "&sortDescending=" + searchOpt.value.sortDescending, {withCredentials: true}).then(response => {
     toast.update(ticketLoadingToast, {"closeOnClick": true, render: "Loaded tickets", type: "success", isLoading: false, autoClose: 2000});
     tickets.value = response.data;
     console.log(tickets.value)
   }).catch(error => {
     toast.update(ticketLoadingToast, {"closeOnClick": true, render: error.response.data.length < 30 ? error.response.data : "Error loading tickets. Try refreshing.", type: "error", isLoading: false, autoClose: 2000});
+    if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
+      router.push('/login');
+    }
   });
 }
 
 function closeTicket(ticket) {
   console.log(ticket);
-  let issueReq = axios.get(backendUrl + "/v1/ticket/getissuetypes", {headers: {
-      Authorization: tokenStore.getAccess + "," + tokenStore.getRefresh
-    }}).then(response => {
-    //console.log(response.headers)
-    tokenStore.setTokens(response.headers["authorization"].split(',')[0],response.headers["authorization"].split(',')[1]);
-    let temp = {};
-    for (let i = 0; i < response.data.length; i++) {
-      if (response.data[i].issue === ticket.issue) temp[temp.length] = response.data[i];
-    }
-    console.log(temp)
-    issueTypes.value = temp;
+  let issueReq = axios.get(backendUrl + "/v1/ticket/getissuevariants?repairByIssue=" + ticket.issue, {withCredentials: true}).then(response => {
+    
+    issueTypes.value = response.data;
     
     closingTicket.value.id = ticket.ticketId;
     closingTicket.value.issue = ticket.issue;
@@ -125,6 +115,9 @@ function closeTicket(ticket) {
       "pauseOnFocusLoss": false,
       "transition": "bounce"
     });
+    if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
+      router.push('/login');
+    }
   });
   
   
@@ -137,33 +130,35 @@ function submitCloseTicket() {
   }
   repair.value = "";
   repairCustom.value = "";
-  let req = axios.post(backendUrl + "/v1/ticket/closeticket", data, {headers: {
-      Authorization: tokenStore.getAccess + "," + tokenStore.getRefresh
-    }}).then(response => {
+  let req = axios.post(backendUrl + "/v1/ticket/closeticket", data, {withCredentials: true}).then(response => {
     closeTicketOpen.value = false;
     let ticketLoadingToast = toast.loading("Loading tickets...", {
       transition: "bounce",
       closeOnClick: false,
       pauseOnHover: false
     });
-    axios.get(backendUrl + "/v1/ticket/gettickets?printerName=" + searchOpt.value.searchWord + "&onlyOpen=" + searchOpt.value.onlyOpen + "&sortDescending=" + searchOpt.value.sortDescending, {headers: {
-        Authorization: tokenStore.getAccess + "," + tokenStore.getRefresh
-      }}).then(response => {
-      tokenStore.setTokens(response.headers["authorization"].split(',')[0],response.headers["authorization"].split(',')[1]);
+    axios.get(backendUrl + "/v1/ticket/gettickets?printerName=" + searchOpt.value.searchWord + "&onlyOpen=" + searchOpt.value.onlyOpen + "&sortDescending=" + searchOpt.value.sortDescending, {withCredentials: true}).then(response => {
       toast.update(ticketLoadingToast, {"closeOnClick": true, render: "Loaded tickets", type: "success", isLoading: false, autoClose: 2000});
       tickets.value = response.data;
       console.log(tickets.value)
     }).catch(error => {
       toast.update(ticketLoadingToast, {"closeOnClick": true, render: error.response.data.length < 30 ? error.response.data : "Error loading tickets. Try refreshing.", type: "error", isLoading: false, autoClose: 2000});
+      if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
+        router.push('/login');
+      }
     });
   }).catch(error => {
-    toast(error.response.data.length < 30 ? error.response.data : error.message, {
+    toast(error.response.data.length < 30 ? error.response.data : error.body, {
       "type": "error",
       "closeOnClick": true,
       "autoClose": 2000,
       "pauseOnFocusLoss": false,
       "transition": "bounce"
     });
+    if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
+      router.push('/login');
+    }
+    
   })
 }
 
@@ -236,7 +231,7 @@ function closeCloseTicket() {
                   <div v-if="ticket.dateClosed === null" class="bg-red-500 py-1 px-3 mx-1 rounded-xl hover:bg-red-600 cursor-pointer" >
                     <p @click="closeTicket(ticket)" class="text-white">Close</p>
                   </div>
-                  <div class="bg-gray-200 py-1 px-3 mx-1 rounded-xl hover:bg-gray-300 cursor-pointer">
+                  <div v-if="hasPerm(userStore, 'Head Technician')" class="bg-gray-200 py-1 px-3 mx-1 rounded-xl hover:bg-gray-300 cursor-pointer">
                     <p @click="modifyingTicket = ticket; showModify = true;">Modify</p>
                   </div>
                 </div>
@@ -261,7 +256,7 @@ function closeCloseTicket() {
         <hr class="my-2">
         <p class="text-left">Repair</p>
         <select v-model="repair" class="text-green-500 p-1 bg-gray-200 rounded-lg">
-          <option v-for="(issue, index) in issueTypes" :value="issue.repair">{{issue.repair}}</option>
+          <option v-for="(issue, index) in issueTypes" :value="issue">{{issue}}</option>
           <option value="custom">Custom</option>
         </select>
         <template v-if="repair==='custom'">

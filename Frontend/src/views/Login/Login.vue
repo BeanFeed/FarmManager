@@ -24,25 +24,28 @@ function login() {
     password: password.value,
   }
   
-  let req = axios.post(backendUrl + "/v1/user/login", data ).then(response => {
-    tokenStore.setTokens(response.headers["authorization"].split(',')[0],response.headers["authorization"].split(',')[1]);
-    
-    let req2 = axios.get(backendUrl + "/v1/user/me", {headers: {
-      Authorization: tokenStore.getAccess + "," + tokenStore.getRefresh
-      }}).then(res => {
+  let req = axios.post(backendUrl + "/v1/user/login", data, {withCredentials: true}).then(response => {
+       
+    let req2 = axios.get(backendUrl + "/v1/user/me", {withCredentials: true}).then(res => {
       userStore.setUser({
         name: res.data.name,
         id: res.data.id,
-        role: res.data.role === "HeadTechnician" ? "HeadTechnician" : res.data.role
+        role: res.data.role === "HeadTechnician" ? "Head Technician" : res.data.role
       });
       failed.value = false;
-      console.log("Path: " + route.query.returnPath)
+      console.log(typeof route.query.returnPath)
       if (typeof route.query.returnPath == "string") {
         console.log("To Path")
         router.push(route.query.returnPath);
-        return;
-      }
-      router.push('/printers')
+      }else router.push('/printers')
+    }).catch(error => {
+      toast(error.response.data.length < 30 ? error.response.data : error.body, {
+        "type": "error",
+        "closeOnClick": true,
+        "autoClose": 2000,
+        "pauseOnFocusLoss": false,
+        "transition": "bounce"
+      });
     });
     
      

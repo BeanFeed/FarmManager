@@ -130,10 +130,13 @@ public class JwtService
         JwtSecurityToken token = handler.ReadJwtToken(eToken);
         
         var sessionId = Guid.Parse(token.Claims.Where(claim => claim.Type == "SessionId").ToArray()[0].Value);
+        
         var name = token.Claims.Where(claim => claim.Type == "Name").ToArray()[0].Value;
         var id = int.Parse(token.Claims.Where(claim => claim.Type == "Id").ToArray()[0].Value);
+        
         var usr = await SearchUser(id);
         if (usr == null) throw new UserException("User not found");
+        if(!(await IsValidSession(sessionId, usr.Id))) throw new UserException("Session Invalid");
         User cUsr = new User()
         {
             Id = usr.Id,
@@ -146,7 +149,7 @@ public class JwtService
         
     }
 
-    public async Task<User> DecodeRefreshToken(string rToken)
+    public async Task<User> DecodeRefreshToken(string rToken, bool invalidate = true)
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.RKey));
         var handler = new JwtSecurityTokenHandler();
@@ -178,7 +181,7 @@ public class JwtService
             PassHash = ""
         };
 
-        await InvalidateOldSession(sessionId);
+        if(invalidate) await InvalidateOldSession(sessionId);
         
         return cUsr;
     }
@@ -206,7 +209,7 @@ public class JwtService
         return await IsValidSession(sessionId, userId);
     }
 
-    private async Task<bool> IsValidSession(Guid sessionId, int userId)
+    public async Task<bool> IsValidSession(Guid sessionId, int userId)
     {
         Session? session = await managerContext.Sessions.FindAsync(sessionId);
 

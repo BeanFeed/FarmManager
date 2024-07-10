@@ -10,14 +10,12 @@ import {router} from "../../router.js";
 import {useBrowserLocation} from "@vueuse/core";
 import QrcodeVue from "qrcode.vue";
 import {hasPerm} from "../../utils.js";
-import {TokenStore} from "../../store/TokenStore.js";
 import TicketCreateMenu from "../Ticket/TicketCreateMenu.vue";
 
 let route = useRoute();
 let location = useBrowserLocation();
 let printerName = route.params.printerName;
 let userStore = UserStore();
-let tokenStore = TokenStore();
 let printer = ref({
   name: "",
   serialNumber: "",
@@ -33,24 +31,19 @@ let newTicketOpen = ref(false);
 
 let tickets = ref([]);
 onMounted(() => {
-  if (userStore.id === null) {
-    router.push('/login?returnPath=' + route.fullPath);
-  }
   let loadingToast = toast.loading("Loading printer...", {
     transition: "bounce",
     closeOnClick: false,
     pauseOnHover: false
   });
-  axios.get(backendUrl + "/v1/printer/getprinter?name=" + printerName, {headers: {
-      Authorization: tokenStore.getAccess + "," + tokenStore.getRefresh
-    }}).then(response => {
-    tokenStore.setTokens(response.headers["authorization"].split(',')[0],response.headers["authorization"].split(',')[1]);
+  axios.get(backendUrl + "/v1/printer/getprinter?name=" + printerName, {withCredentials: true}).then(response => {
     toast.update(loadingToast, {"closeOnClick": true, render: "Loaded printers", type: "success", isLoading: false, autoClose: 2000});
     printer.value = response.data;
   }).catch(error => {
-    console.log("New error");
-    console.log(error.body);
     toast.update(loadingToast, {"closeOnClick": true, render: error.response.data.length < 30 ? error.response.data : "Error loading printers. Try refreshing.", type: "error", isLoading: false, autoClose: 2000});
+    if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
+      router.push('/login');
+    }
   })
   if (hasPerm(userStore, "Technician")) {
     let ticketLoadingToast = toast.loading("Loading tickets...", {
@@ -59,14 +52,15 @@ onMounted(() => {
       autoClose: 2000,
       pauseOnHover: false
     });
-    axios.get(backendUrl + "/v1/ticket/gettickets?printerName=" + printerName, {headers: {
-        Authorization: tokenStore.getAccess + "," + tokenStore.getRefresh
-      }}).then(response => {
-      tokenStore.setTokens(response.headers["authorization"].split(',')[0],response.headers["authorization"].split(',')[1]);
+    axios.get(backendUrl + "/v1/ticket/gettickets?printerName=" + printerName, {withCredentials: true}).then(response => {
+      
       toast.update(ticketLoadingToast, {"closeOnClick": true, render: "Loaded tickets", type: "success", isLoading: false, autoClose: 2000});
       tickets.value = response.data;
     }).catch(error => {
       toast.update(ticketLoadingToast, {"closeOnClick": true, render: error.response.data.length < 30 ? error.response.data : "Error loading tickets. Try refreshing.", type: "error", isLoading: false, autoClose: 2000});
+      if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
+        router.push('/login');
+      }
     });
   }
   
@@ -92,10 +86,8 @@ const downloadQrCode = () => {
 
 function refreshTickets() {
   if (!hasPerm(userStore,'Technician')) return;
-  axios.get(backendUrl + "/v1/ticket/gettickets?printerName=" + printerName, {headers: {
-      Authorization: tokenStore.getAccess + "," + tokenStore.getRefresh
-    }}).then(response => {
-    tokenStore.setTokens(response.headers["authorization"].split(',')[0],response.headers["authorization"].split(',')[1]);
+  axios.get(backendUrl + "/v1/ticket/gettickets?printerName=" + printerName, {withCredentials: true}).then(response => {
+    
     tickets.value = response.data;
   }).catch(error => {
     toast(error.response.data.length < 30 ? error.response.data : error.message, {
@@ -105,82 +97,88 @@ function refreshTickets() {
       "pauseOnFocusLoss": false,
       "transition": "bounce"
     });
+    if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
+      router.push('/login');
+    }
   });
 }
 </script>
 
 <template>
 <div class="flex items-center justify-center fixHeight p-2">
-  <div class="bg-white p-6 rounded-3xl overflow-auto ml:w-[50vw] h-[60vh]">
-    <h1>{{printer.name}}</h1>
-    <div class="overflow-auto">
-      <table
-          class="min-w-full text-left text-surface ">
-        <thead
-            class="border-b border-gray-200 ">
-        <tr>
-          <th scope="col" class="px-6 py-4">Serial Number</th>
-          <th scope="col" class="px-6 py-4">Brand</th>
-          <th scope="col" class="px-6 py-4">Model</th>
-          <th scope="col" class="px-6 py-4">Location</th>
-          <th scope="col" class="px-6 py-4">Purchase Date</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr class="border-b border-gray-200">
-          <td class="whitespace-nowrap px-6 py-4">{{ printer.serialNumber }}</td>
-          <td class="whitespace-nowrap px-6 py-4">{{ printer.brand }}</td>
-          <td class="whitespace-nowrap px-6 py-4">{{ printer.model }}</td>
-          <td class="whitespace-nowrap px-6 py-4">{{ printer.location.name }}</td>
-          <td class="whitespace-nowrap px-6 py-4">{{ new Date(printer.purchaseDate).toLocaleDateString()}}</td>
-        </tr>
-
-        </tbody>
-      </table>
-    </div>
-    
-    <div class="flex items-center justify-center mt-8">
-      <div class="m-10">
-        <div @click="newTicketOpen = true" class="bg-green-500 p-4 rounded-3xl text-xl text-white hover:bg-green-600 cursor-pointer">Create ticket</div>
-      </div>
-      <div class="m-10">
-        <p class="text-lg">Profile Code</p>
-        <div @click="downloadQrCode" ref="qrcode" class="cursor-pointer" title="Download">
-          <QrcodeVue :value="location.href" level="L" render-as="canvas" />
-        </div>
-        
-      </div>
-    </div>
-    <template v-if="hasPerm(userStore,'Technician')">
-      <h3 class="text-lg">Ticket History</h3>
-      <div class="overflow-x-auto">
+  <div class="bg-white rounded-3xl p-6 overflow-auto ml:w-[50vw] h-[60vh]">
+    <div class="w-full h-full overflow-auto">
+      <h1>{{printer.name}}</h1>
+      <div class="overflow-auto">
         <table
             class="min-w-full text-left text-surface ">
           <thead
               class="border-b border-gray-200 ">
           <tr>
-            <th scope="col" class="px-6 py-4">Date Opened</th>
-            <th scope="col" class="px-6 py-4">Status</th>
-            <th scope="col" class="px-6 py-4">Issue</th>
-            <th scope="col" class="px-6 py-4">Repair</th>
-            <th scope="col" class="px-6 py-4">Opened By</th>
-            <th scope="col" class="px-6 py-4">Technician</th>
+            <th scope="col" class="px-6 py-4">Serial Number</th>
+            <th scope="col" class="px-6 py-4">Brand</th>
+            <th scope="col" class="px-6 py-4">Model</th>
+            <th scope="col" class="px-6 py-4">Location</th>
+            <th scope="col" class="px-6 py-4">Purchase Date</th>
           </tr>
           </thead>
           <tbody>
-          <tr v-for="(ticket, index) in tickets" class="border-b border-gray-200">
-            <td class="whitespace-nowrap px-6 py-4">{{ new Date(ticket.dateOpened).toLocaleString() }}</td>
-            <td :title="new Date(ticket.dateClosed).toLocaleString()" class="whitespace-nowrap px-6 py-4">{{ ticket.dateClosed === null ? "Open" : "Closed" }}</td>
-            <td class="whitespace-nowrap px-6 py-4">{{ ticket.issue }}</td>
-            <td class="whitespace-nowrap px-6 py-4">{{ ticket.repair === null ? "Pending" : ticket.repair }}</td>
-            <td class="whitespace-nowrap px-6 py-4">{{ ticket.openedBy }}</td>
-            <td class="whitespace-nowrap px-6 py-4">{{ ticket.technician === null ? "Pending" : ticket.technician }}</td>
+          <tr class="border-b border-gray-200">
+            <td class="whitespace-nowrap px-6 py-4">{{ printer.serialNumber }}</td>
+            <td class="whitespace-nowrap px-6 py-4">{{ printer.brand }}</td>
+            <td class="whitespace-nowrap px-6 py-4">{{ printer.model }}</td>
+            <td class="whitespace-nowrap px-6 py-4">{{ printer.location.name }}</td>
+            <td class="whitespace-nowrap px-6 py-4">{{ new Date(printer.purchaseDate).toLocaleDateString()}}</td>
           </tr>
 
           </tbody>
         </table>
       </div>
-    </template>
+
+      <div class="flex items-center justify-center mt-8">
+        <div class="m-10">
+          <div @click="newTicketOpen = true" class="bg-green-500 p-4 rounded-3xl text-xl text-white hover:bg-green-600 cursor-pointer">Create ticket</div>
+        </div>
+        <div class="m-10">
+          <p class="text-lg">Profile Code</p>
+          <div @click="downloadQrCode" ref="qrcode" class="cursor-pointer" title="Download">
+            <QrcodeVue :value="location.href" level="L" render-as="canvas" />
+          </div>
+
+        </div>
+      </div>
+      <template v-if="hasPerm(userStore,'Technician')">
+        <h3 class="text-lg">Ticket History</h3>
+        <div class="overflow-x-auto">
+          <table
+              class="min-w-full text-left text-surface ">
+            <thead
+                class="border-b border-gray-200 ">
+            <tr>
+              <th scope="col" class="px-6 py-4">Date Opened</th>
+              <th scope="col" class="px-6 py-4">Status</th>
+              <th scope="col" class="px-6 py-4">Issue</th>
+              <th scope="col" class="px-6 py-4">Repair</th>
+              <th scope="col" class="px-6 py-4">Opened By</th>
+              <th scope="col" class="px-6 py-4">Technician</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="(ticket, index) in tickets" class="border-b border-gray-200">
+              <td class="whitespace-nowrap px-6 py-4">{{ new Date(ticket.dateOpened).toLocaleString() }}</td>
+              <td :title="new Date(ticket.dateClosed).toLocaleString()" class="whitespace-nowrap px-6 py-4">{{ ticket.dateClosed === null ? "Open" : "Closed" }}</td>
+              <td class="whitespace-nowrap px-6 py-4">{{ ticket.issue }}</td>
+              <td class="whitespace-nowrap px-6 py-4">{{ ticket.repair === null ? "Pending" : ticket.repair }}</td>
+              <td class="whitespace-nowrap px-6 py-4">{{ ticket.openedBy }}</td>
+              <td class="whitespace-nowrap px-6 py-4">{{ ticket.technician === null ? "Pending" : ticket.technician }}</td>
+            </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </template>
+    </div>
+    
   </div>
   
   <TicketCreateMenu :printerName="printer.name" v-if="newTicketOpen" @complete="newTicketOpen = false; refreshTickets();" />

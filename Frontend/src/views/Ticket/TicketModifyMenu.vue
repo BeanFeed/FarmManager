@@ -1,13 +1,15 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
 import axios from "axios";
-import {TokenStore} from "../../store/TokenStore.js";
 import {backendUrl} from "../../main.js";
 import {toast} from "vue3-toastify";
 import {hasPerm} from "../../utils.js";
+import {router} from "../../router.js";
+import {useRoute} from "vue-router";
 
 let emits = defineEmits(['close']);
 let props = defineProps(['ticket']);
+let route = useRoute();
 
 let openedBy = ref(null);
 let technician = ref(null);
@@ -17,18 +19,29 @@ let repair = ref("");
 let repairCustom = ref("");
 let reopen = ref(false);
 
-let tokenStore = TokenStore();
-
 let allUsers = ref([]);
 let allTechs = ref({});
 let issueTypes = ref([]);
+let issueNoDupes = ref([]);
 let repairTypes = ref([]);
 onMounted(() => {
-  let issueReq = axios.get(backendUrl + "/v1/ticket/getissuetypes" ,{headers: {
-      Authorization: tokenStore.getAccess + "," + tokenStore.getRefresh
-    }}).then(response => {
-    tokenStore.setTokens(response.headers["authorization"].split(',')[0],response.headers["authorization"].split(',')[1]);
+  let issueReq = axios.get(backendUrl + "/v1/ticket/getissuevariants" ,{withCredentials: true}).then(response => {
     issueTypes.value = response.data;
+    
+    if (issueTypes.value.includes(props.ticket.issue)) {
+      let repairReq = axios.get(backendUrl + "/v1/ticket/getissuevariants?repairByIssue=" + props.ticket.issue, {withCredentials: true}).then(response => {
+        repairTypes.value = response.data;
+      }).catch(error => {
+        toast(error.response.data.length < 30 ? error.response.data : error.body, {
+          "type": "error",
+          "closeOnClick": true,
+          "autoClose": 2000,
+          "pauseOnFocusLoss": false,
+          "transition": "bounce"
+        });
+      })
+    }
+    
   }).catch(error => {
     toast(error.response.data.length < 30 ? error.response.data : error.body, {
       "type": "error",
@@ -37,12 +50,12 @@ onMounted(() => {
       "pauseOnFocusLoss": false,
       "transition": "bounce"
     });
+    if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
+      router.push('/login');
+    }
   });
 
-  let usersReq = axios.get(backendUrl + "/v1/user/getusers" ,{headers: {
-      Authorization: tokenStore.getAccess + "," + tokenStore.getRefresh
-    }}).then(response => {
-    tokenStore.setTokens(response.headers["authorization"].split(',')[0],response.headers["authorization"].split(',')[1]);
+  let usersReq = axios.get(backendUrl + "/v1/user/getusers" ,{withCredentials: true}).then(response => {
     allUsers.value = response.data;
     for (let i = 0; i < response.data.length; i++) {
       if (hasPerm(response.data[i], "Technician")) allTechs.value[allTechs.value.length] = response.data[i];
@@ -56,17 +69,27 @@ onMounted(() => {
       "pauseOnFocusLoss": false,
       "transition": "bounce"
     });
+    if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
+      router.push('/login');
+    }
   });
 })
 
 watch(issue, (value, oldValue) => {
-  if (value === "custom") {
-    repairTypes.value = [...issueTypes.value];
+  if (value !== "custom") {
+    let repairReq = axios.get(backendUrl + "/v1/ticket/getissuevariants?repairByIssue=" + value, {withCredentials: true}).then(response => {
+      repairTypes.value = response.data;
+    }).catch(error => {
+      toast(error.response.data.length < 30 ? error.response.data : error.body, {
+        "type": "error",
+        "closeOnClick": true,
+        "autoClose": 2000,
+        "pauseOnFocusLoss": false,
+        "transition": "bounce"
+      });
+    })
   } else {
     repairTypes.value = [];
-    for (let i = 0; i < issueTypes.value.length; i++) {
-      if (issueTypes.value[i].issue === issue.value) repairTypes.value[repairTypes.value.length] = issueTypes.value[i];
-    }
   }
 });
 
@@ -101,11 +124,7 @@ function submit() {
   } else data.reopen = true;
   data.id = props.ticket.ticketId;
   
-  let req = axios.post(backendUrl + "/v1/ticket/modifyticket", data, {headers: {
-      Authorization: tokenStore.getAccess + "," + tokenStore.getRefresh
-    }}).then(response => {
-    tokenStore.setTokens(response.headers["authorization"].split(',')[0],response.headers["authorization"].split(',')[1]);
-
+  let req = axios.post(backendUrl + "/v1/ticket/modifyticket", data, {withCredentials: true}).then(response => {
     openedBy = ref(null);
     technician = ref(null);
     issue = ref("");
@@ -126,17 +145,16 @@ function submit() {
       "pauseOnFocusLoss": false,
       "transition": "bounce"
     });
+    if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
+      router.push('/login');
+    }
   })
   
   
 }
 
 function deleteTicket() {
-  let req = axios.delete(backendUrl + "/v1/ticket/deleteticket?id=" + props.ticket.ticketId,{headers: {
-      Authorization: tokenStore.getAccess + "," + tokenStore.getRefresh
-    }}).then(response => {
-    tokenStore.setTokens(response.headers["authorization"].split(',')[0],response.headers["authorization"].split(',')[1]);
-
+  let req = axios.delete(backendUrl + "/v1/ticket/deleteticket?id=" + props.ticket.ticketId,{withCredentials: true}).then(response => {
     openedBy = ref(null);
     technician = ref(null);
     issue = ref("");
@@ -157,13 +175,16 @@ function deleteTicket() {
       "pauseOnFocusLoss": false,
       "transition": "bounce"
     });
+    if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
+      router.push('/login');
+    }
   })
 }
 </script>
 
 <template>
   <div class="fixed top-0 left-0 fixHeight w-screen bg-black bg-opacity-25 z-30 flex items-center justify-center">
-    <div class="bg-white p-6 rounded-3xl">
+    <div class="bg-white p-6 rounded-3xl w-96">
       <h1>Modify Ticket</h1>
       <hr class="my-2">
       <div class="flex flex-col">
@@ -181,7 +202,7 @@ function deleteTicket() {
         </template>
         <p class="text-left">Issue <span v-if="showRequired" class="text-red-500">Required</span></p>
         <select v-model="issue" class="text-green-500 p-1 bg-gray-200 rounded-lg">
-          <option v-for="(issue, index) in issueTypes" :value="issue.issue">{{issue.issue}}</option>
+          <option v-for="(issue, index) in issueTypes" :value="issue">{{issue}}</option>
           <option value="custom">Custom</option>
         </select>
         <template v-if="issue==='custom'">
@@ -197,7 +218,7 @@ function deleteTicket() {
         <template v-if="ticket.dateClosed !== null && !reopen">
           <p class="text-left">Repair</p>
           <select v-model="repair" class="text-green-500 p-1 bg-gray-200 rounded-lg">
-            <option v-for="(issue, index) in repairTypes" :value="issue.repair">{{issue.repair}}</option>
+            <option v-for="(repair, index) in repairTypes" :value="repair">{{repair}}</option>
             <option value="custom">Custom</option>
           </select>
           <template v-if="repair==='custom'">
@@ -221,13 +242,13 @@ function deleteTicket() {
           <hr class="my-2">
         </template>
         <div class="flex justify-center">
-          <div @click="submit" class="bg-green-500 hover:bg-green-600 cursor-pointer p-2 rounded-lg mr-1">
+          <div @click="submit" class="w-full bg-green-500 hover:bg-green-600 cursor-pointer p-2 rounded-lg mr-1">
             <p class="text-white">Submit</p>
           </div>
-          <div @click="cancel" class="bg-gray-200 hover:bg-gray-300 cursor-pointer p-2 rounded-lg mx-1">
+          <div @click="cancel" class="w-full bg-gray-200 hover:bg-gray-300 cursor-pointer p-2 rounded-lg mx-1">
             <p>Cancel</p>
           </div>
-          <div @click="deleteTicket" class="bg-red-500 hover:bg-red-600 cursor-pointer p-2 rounded-lg ml-1">
+          <div @click="deleteTicket" class="w-full bg-red-500 hover:bg-red-600 cursor-pointer p-2 rounded-lg ml-1">
             <p class="text-white">Delete</p>
           </div>
         </div>

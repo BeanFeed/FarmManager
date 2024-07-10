@@ -73,16 +73,16 @@ public class UserService
         {
             Id = user.Id,
             Name = user.Name,
-            Role = user.Role,
+            Role = user.Role == "HeadTechnician" ? "Head Technician" : user.Role,
             PassHash = ""
         };
         
         return cUsr;
     }
 
-    public async Task<User[]> GetUsers()
+    public async Task<User[]> GetUsers(string name = "")
     {
-        User[] eUsers = await _managerContext.Users.AsNoTracking().ToArrayAsync();
+        User[] eUsers = await _managerContext.Users.AsNoTracking().Where(x => x.Name.Contains(name)).ToArrayAsync();
         User[] users = new User[eUsers.Length];
         for (int i = 0; i < users.Length; i++)
         {
@@ -90,7 +90,7 @@ public class UserService
             {
                 Id = eUsers[i].Id,
                 Name = eUsers[i].Name,
-                Role = eUsers[i].Role,
+                Role = eUsers[i].Role == "HeadTechnician" ? "Head Technician" : eUsers[i].Role,
                 PassHash = ""
             };
             users[i] = cUsr;
@@ -101,6 +101,7 @@ public class UserService
 
     public async Task ModifyUser(ModifyUserModel userData)
     {
+        bool madeChange = false;
         #region Get User
 
         User? user = await _managerContext.Users.FindAsync(userData.Id);
@@ -118,6 +119,7 @@ public class UserService
             if (existingUser is not null) throw new UserException("Name already used");
 
             user.Name = userData.Name;
+            madeChange = true;
         }
 
         if (userData.Role is not null)
@@ -126,14 +128,29 @@ public class UserService
             if (user.Role == "owner") throw new UserException("Cannot downgrade Owner");
             
             user.Role = userData.Role;
+            madeChange = true;
         }
 
         if (userData.Password is not null)
         {
             user.PassHash = BCrypt.Net.BCrypt.HashPassword(userData.Password);
+            madeChange = true;
         }
         #endregion
+        
+        #region Invalidate old sessions
 
+        if (madeChange)
+        {
+            Session[] oldSessions = await _managerContext.Sessions.Where(x => x.UserId == user.Id && x.Valid).ToArrayAsync();
+            for (int i = 0; i < oldSessions.Length; i++)
+            {
+                oldSessions[i].Valid = false;
+            }
+        }
+        
+        #endregion
+        
         _managerContext.Users.Update(user);
 
         await _managerContext.SaveChangesAsync();
@@ -213,6 +230,7 @@ public class UserService
         {
             oldSessions[i].Valid = false;
         }
+        
         #endregion
 
         await _managerContext.SaveChangesAsync();
