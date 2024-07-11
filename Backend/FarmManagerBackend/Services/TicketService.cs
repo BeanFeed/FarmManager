@@ -82,7 +82,7 @@ public class TicketService
 
     public async Task<string[]> GetIssueVariants(string? repairsByIssue = null)
     {
-        List<IssueType> issueTypes = await _managerContext.IssueTypes.ToListAsync();
+        List<IssueType> issueTypes = await _managerContext.IssueTypes.OrderBy(x => x.Issue).ToListAsync();
         List<string> returnList = new List<string>();
         if (repairsByIssue != null)
         {

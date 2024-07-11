@@ -59,7 +59,7 @@ function close() {
     <div class="bg-white p-6 rounded-3xl">
       <h1>Add User</h1>
       <hr class="my-2">
-      <p class="text-left">Name</p>
+      <p class="text-left">Name <span v-if="showRequired" class="text-red-500">Required</span></p>
       <div class="max-w-4xl w-full rounded-lg bg-gray-200 mt-1">
         <ul class="flex items-center">
           <li class="mx-1 w-full">
@@ -68,14 +68,14 @@ function close() {
         </ul>
       </div>
       <hr class="my-2">
-      <p class="text-left">Role</p>
+      <p class="text-left">Role <span v-if="showRequired" class="text-red-500">Required</span></p>
       <select v-model="role" class="text-green-500 p-1 bg-gray-200 rounded-lg w-full">
         <option value="Member">Member</option>
         <option value="Technician">Technician</option>
         <option value="HeadTechnician">Head Technician</option>
       </select>
       <hr class="my-2">
-      <p class="text-left">Password</p>
+      <p class="text-left">Password <span v-if="showRequired" class="text-red-500">Required</span></p>
       <div class="max-w-4xl w-full rounded-lg bg-gray-200 mt-1">
         <ul class="flex items-center">
           <li class="mx-1 w-full">

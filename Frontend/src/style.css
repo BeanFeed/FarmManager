@@ -69,6 +69,10 @@ button:focus-visible {
   min-height: -webkit-fill-available;
 }
 
+input {
+
+}
+
 #app {
   margin: 0;
   text-align: center;

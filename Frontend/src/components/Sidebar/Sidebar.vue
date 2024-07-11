@@ -26,6 +26,12 @@ let options = ref({
     text: "Tickets",
     route: "/tickets",
     role: "Technician"
+  },
+  Settings: {
+    icon: "bi bi-gear",
+    text: "Settings",
+    route: "/settings/account",
+    role: "Member"
   }
 })
 
@@ -84,6 +90,13 @@ function logout() {
           <h3 class="text-green-500">{{ options.Tickets.text }}</h3>
         </div>
       </li>
+      <li v-if="hasPerm(userStore, options.Settings.role)" @click="isOpenState = !isOpenState; router.push(options.Settings.route)" :class="getColor(options.Settings.route)" class=" z-10 h-24 border-b-2 flex items-center justify-center cursor-pointer">
+        <div>
+          <i class="text-green-500 text-2xl" :class="options.Settings.icon"></i>
+          <h3 class="text-green-500">{{ options.Settings.text }}</h3>
+        </div>
+      </li>
+
       <li @click="userStore.isLoggedIn ? logout() : router.push('/login')" class="w-24 h-24 bg-white border-b-2 flex items-center justify-center cursor-pointer">
         <div>
           <i class="text-green-500 text-4xl" :class="userStore.isLoggedIn ? 'bi bi-box-arrow-in-left' :'bi bi-box-arrow-right'"></i>

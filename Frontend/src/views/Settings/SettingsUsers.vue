@@ -77,7 +77,7 @@ let newUserOpen = ref(false);
 
 <template>
   <div>
-    <div class="flex items-center">
+    <div class="ml:flex items-center">
       <SearchBar @update="args => search(args.value)" alt-color="bg-gray-200"/>
       <a @click="newUserOpen = true" class="bg-green-500 hover:bg-green-600 text-white hover:text-white cursor-pointer h-10 mx-1 mt-2 ml:mt-0 px-3 py-1 rounded-xl flex items-center justify-center">
         Add User

@@ -1,6 +1,6 @@
 <script setup>
 import TextInput from "../../components/TextInput.vue";
-import {ref} from "vue";
+import {onMounted, ref, watch} from "vue";
 import axios from "axios";
 import {useBrowserLocation} from "@vueuse/core";
 import {backendUrl} from "../../main.js";
@@ -34,10 +34,7 @@ function login() {
       });
       failed.value = false;
       console.log(typeof route.query.returnPath)
-      if (typeof route.query.returnPath == "string") {
-        console.log("To Path")
-        router.push(route.query.returnPath);
-      }else router.push('/printers')
+
     }).catch(error => {
       toast(error.response.data.length < 30 ? error.response.data : error.body, {
         "type": "error",
@@ -59,6 +56,14 @@ function login() {
     });
   });
 }
+
+watch(userStore.id, () => {
+  if(userStore.id !== null) router.push('/printers');
+});
+
+onMounted(() => {
+  if(userStore.id !== null) router.push('/printers');
+})
 </script>
 
 <template>
@@ -67,7 +72,7 @@ function login() {
     <h1 class="mb-4">Farm Manager</h1>
     <div class="bg-white p-6 rounded-3xl">
       <h1>Login</h1>
-      <p class="text-left my-2" :class="failed ? 'text-red-500' : ''">Name</p>
+      <p class="text-left my-2">Name <span v-if="failed" class="text-red-500">Required</span></p>
       <div class="max-w-4xl w-full p-3 rounded-3xl bg-gray-100">
         <ul class="flex items-center">
           <li class="mx-1 w-full">
@@ -75,7 +80,7 @@ function login() {
           </li>
         </ul>
       </div>
-      <p class="text-left mt-4 mb-2" :class="failed ? 'text-red-500' : ''">Password</p>
+      <p class="text-left mt-4 mb-2">Password <span v-if="failed" class="text-red-500">Required</span></p>
       <div class="max-w-4xl w-full p-3 rounded-3xl bg-gray-100">
         <ul class="flex items-center">
           <li class="mx-1 w-full">

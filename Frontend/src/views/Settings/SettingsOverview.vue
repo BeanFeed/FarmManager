@@ -21,7 +21,7 @@ onMounted(() => {
   <div class="w-[75vw]">
     <Tabs v-if="hasPerm(userStore, 'Head Technician')"/>
     <div class="bg-white p-6 min-h-[50vh] rounded-3xl mt-2 overflow-y-auto">
-    <RouterView class="h-full"/>
+    <RouterView class="h-full overflow-y-auto"/>
     </div>
   </div>
   

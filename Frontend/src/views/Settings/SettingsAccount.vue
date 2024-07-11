@@ -56,7 +56,7 @@ function changePassword() {
     <div class="flex items-center justify-center">
       <div>
         <div class="w-1/8 container-text-left">
-          <h2 class="text-left text-4xl">Change Password</h2>
+          <h2 class="text-4xl">Change Password</h2>
           <p class="mb-1 my-5">Old password</p>
           <div class="max-w-4xl w-full rounded-lg bg-gray-200 mt-1">
             <ul class="flex items-center">

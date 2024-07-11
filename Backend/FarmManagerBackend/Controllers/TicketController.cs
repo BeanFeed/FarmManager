@@ -60,11 +60,11 @@ public class TicketController : ControllerBase
 
     [HttpPost]
     [Authorize(Role = Roles.HeadTechnician)]
-    public async Task<IActionResult> AddIssueType(string issue, string repair)
+    public async Task<IActionResult> AddIssueType(AddIssueTypeModel issueType)
     {
         try
         {
-            await _ticketService.AddIssueType(issue, repair);
+            await _ticketService.AddIssueType(issueType.Issue, issueType.Repair);
         }
         catch (TicketException e)
         {
