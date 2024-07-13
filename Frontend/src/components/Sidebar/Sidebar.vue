@@ -37,24 +37,26 @@ let options = ref({
 
 
 onMounted(() => {
-  let req = axios.get(backendUrl + "/v1/user/me", {withCredentials: true}).then(res => {
-    userStore.setUser({
-      name: res.data.name,
-      id: res.data.id,
-      role: res.data.role === "HeadTechnician" ? "Head Technician" : res.data.role
+  if(!route.path.startsWith('/login')) {
+    let req = axios.get(backendUrl + "/v1/user/me", {withCredentials: true}).then(res => {
+      userStore.setUser({
+        name: res.data.name,
+        id: res.data.id,
+        role: res.data.role === "HeadTechnician" ? "Head Technician" : res.data.role
+      });
+    }).catch(error => {
+      toast(error.response.data.length < 30 ? error.response.data : error.body, {
+        "type": "error",
+        "closeOnClick": true,
+        "autoClose": 2000,
+        "pauseOnFocusLoss": false,
+        "transition": "bounce"
+      });
+      if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
+        router.push('/login');
+      }
     });
-  }).catch(error => {
-    toast(error.response.data.length < 30 ? error.response.data : error.body, {
-      "type": "error",
-      "closeOnClick": true,
-      "autoClose": 2000,
-      "pauseOnFocusLoss": false,
-      "transition": "bounce"
-    });
-    if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
-      router.push('/login');
-    }
-  });
+  }
 })
 
 function getColor(setRoute) {

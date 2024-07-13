@@ -21,17 +21,17 @@ onMounted(() => {
     router.back();
     return;
   }
-  
-  let userLoadingToast = toast.loading("Loading users...", {
-    transition: "bounce",
-    closeOnClick: false,
-    pauseOnHover: false
-  });
+
   let userReq = axios.get(backendUrl + "/v1/user/getusers", {withCredentials: true}).then(response => {
     users.value = response.data;
-    toast.update(userLoadingToast, {"closeOnClick": true, render: "Loaded users", type: "success", isLoading: false, autoClose: 2000});
   }).catch(error => {
-    toast.update(userLoadingToast, {"closeOnClick": true, render: error.response.data.length < 30 ? error.response.data : "Error loading users. Try refreshing.", type: "error", isLoading: false, autoClose: 2000});
+    toast(error.response.data.length < 30 ? error.response.data : error.message, {
+      "type": "error",
+      "closeOnClick": true,
+      "autoClose": 2000,
+      "pauseOnFocusLoss": false,
+      "transition": "bounce"
+    });
   })
 });
 

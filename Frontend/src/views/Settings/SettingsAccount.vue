@@ -47,7 +47,7 @@ function changePassword() {
   <div class="h-full">
     <div class="w-full">
       <div class="spaceChildren container-text-left">
-        <h1 class="">Name: {{userStore.name}}</h1>
+        <h1 class="">{{userStore.name}}</h1>
         <p class="text-xl">Role: {{userStore.role}}</p>
         <p>Id: {{userStore.id}}</p>
       </div>
