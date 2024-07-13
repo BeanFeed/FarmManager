@@ -57,7 +57,7 @@ function login() {
   });
 }
 
-watch(userStore.id, () => {
+watch(userStore, () => {
   if(userStore.id !== null) router.push('/printers');
 });
 
