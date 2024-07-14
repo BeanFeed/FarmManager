@@ -17,7 +17,7 @@ onMounted(() => {
 </script>
 
 <template>
-<div class="fixHeight flex items-center justify-center">
+<div class="p-2 fixHeight flex items-center justify-center">
   <div class="w-[75vw]">
     <Tabs v-if="hasPerm(userStore, 'Head Technician')"/>
     <div class="bg-white p-6 min-h-[50vh] rounded-3xl mt-2 overflow-y-auto">

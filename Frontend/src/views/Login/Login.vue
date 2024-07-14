@@ -36,6 +36,7 @@ function login() {
       console.log(typeof route.query.returnPath)
 
     }).catch(error => {
+      userStore.clearUser();
       toast(error.response.data.length < 30 ? error.response.data : error.body, {
         "type": "error",
         "closeOnClick": true,

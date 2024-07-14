@@ -124,8 +124,8 @@ public class UserService
 
         if (userData.Role is not null)
         {
-            if (userData.Role == "owner") throw new UserException("Cannot make user an Owner");
-            if (user.Role == "owner") throw new UserException("Cannot downgrade Owner");
+            if (userData.Role == "Owner") throw new UserException("Cannot make user an Owner");
+            if (user.Role == "Owner") throw new UserException("Cannot downgrade Owner");
             
             user.Role = userData.Role;
             madeChange = true;

@@ -45,6 +45,7 @@ onMounted(() => {
         role: res.data.role === "HeadTechnician" ? "Head Technician" : res.data.role
       });
     }).catch(error => {
+      userStore.clearUser();
       toast(error.response.data.length < 30 ? error.response.data : error.body, {
         "type": "error",
         "closeOnClick": true,
@@ -63,6 +64,10 @@ function getColor(setRoute) {
   if (route.fullPath.startsWith(setRoute)) return "bg-gray-200";
   return "bg-white";
 }
+
+watch(userStore, () => {
+  if(userStore.id === null && !route.path.startsWith("/login")) router.push("/login");
+})
 
 function logout() {
   userStore.clearUser();
