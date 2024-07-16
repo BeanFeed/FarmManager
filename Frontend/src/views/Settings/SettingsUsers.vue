@@ -17,11 +17,6 @@ let route = useRoute();
 let userStore = UserStore();
 
 onMounted(() => {
-  if (userStore.role !== "Owner") {
-    router.back();
-    return;
-  }
-
   let userReq = axios.get(backendUrl + "/v1/user/getusers", {withCredentials: true}).then(response => {
     users.value = response.data;
   }).catch(error => {

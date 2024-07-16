@@ -36,10 +36,6 @@ let showModify = ref(false);
 let userStore = UserStore();
 let route = useRoute();
 onMounted(() => {
-  if (userStore.id === null) {
-    router.push('/login');
-  }
-  
   let ticketLoadingToast = toast.loading("Loading tickets...", {
     transition: "bounce",
     closeOnClick: false,

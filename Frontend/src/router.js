@@ -7,20 +7,24 @@ import SettingsOverview from "./views/Settings/SettingsOverview.vue";
 import SettingsAccount from "./views/Settings/SettingsAccount.vue";
 import SettingsUsers from "./views/Settings/SettingsUsers.vue";
 import SettingsOptions from "./views/Settings/SettingsOptions.vue";
+import axios from "axios";
+import {backendUrl} from "./main.js";
+import {hasPerm} from "./utils.js";
 
 
 
 const routes = [
     {
         path: '/',
-        redirect: '/printers'
+        redirect: '/printers',
     },
     {
         path: '/printers',
         children: [
             {
                 path: "",
-                component: PrinterOverview
+                component: PrinterOverview,
+                name: 'PrinterOverview'
             },
             {
                 path: "profile/:printerName",
@@ -33,7 +37,8 @@ const routes = [
         children: [
             {
                 path: '',
-                component: TicketOverview
+                component: TicketOverview,
+                name: 'Tickets'
             }
         ]
     },
@@ -65,11 +70,24 @@ const routes = [
     },
     {
         path: '/login',
-        component: Login
+        component: Login,
+        name: 'Login'
     }
 ]
 
 export const router = createRouter({
     history: createWebHistory(),
     routes,
+})
+
+router.beforeEach((to,from) => {
+    if(from.name !== 'Login') {
+
+        let req = axios.get(backendUrl + "/v1/user/me", {withCredentials: true}).then(response => {
+            if((to.name === 'Users' && response.data.role !== "Owner") || (to.name === 'Options' && !hasPerm(response.data, 'Head Technician')) || (to.name === 'Tickets' && !hasPerm(response.data, 'Technician'))) return false;
+        }).catch(error => {
+            return {name: 'Login'}
+        });
+
+    }else return true;
 })

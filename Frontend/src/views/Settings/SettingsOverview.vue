@@ -10,9 +10,7 @@ import {hasPerm} from "../../utils.js";
 let userStore = UserStore();
 let route = useRoute();
 onMounted(() => {
-  if (userStore.id === null) {
-    router.push('/login');
-  }
+
 })
 </script>
 

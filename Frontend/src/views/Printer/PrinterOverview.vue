@@ -19,12 +19,6 @@ let route = useRoute();
 let userStore = UserStore();
 
 onMounted(() => {
-  console.log(userStore.id);
-  if (userStore.id === null) {
-    router.push('/login');
-  }
-  console.log()
-  
   let loadingToast = toast.loading("Loading printers...", {
     transition: "bounce",
     closeOnClick: false,

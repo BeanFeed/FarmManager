@@ -48,6 +48,7 @@ public class UserService
         User? user = await _managerContext.Users.FindAsync(userId);
 
         if (user is null) throw new UserException("Couldn't find user");
+        if (user.Role == "Owner") throw new UserException("Can't delete Owner");
         
         #endregion
 
