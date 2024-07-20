@@ -14,7 +14,16 @@ const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate)
 
 const location = useBrowserLocation().value;
-export const backendUrl = import.meta.env.DEV ? location.protocol + "//" + location.hostname + (location.protocol === "http:" ? ":5001" : ":5000") : "https://api." + location.hostname
 
+function isDomain(str) {
+    // Regular expression to match domain names
+    const domainRegex = /^[a-zA-Z0-9]+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,}$/;
+
+    // Test the string against the regex
+    return domainRegex.test(str);
+}
+
+export const backendUrl = !isDomain(location.hostname) ? location.protocol + "//" + location.hostname + (location.protocol === "http:" ? ":5001" : ":5000") : "https://api." + location.hostname
+//export backendUrl = "https://api.example.com"
 
 createApp(App).use(router).use(pinia).mount('#app')
