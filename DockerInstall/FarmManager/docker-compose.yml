@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  FarmManagerSample:
+  app:
     image: farmmanager:latest
     volumes:
       - ./data:/app/data
