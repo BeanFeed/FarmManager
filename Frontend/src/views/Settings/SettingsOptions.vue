@@ -154,7 +154,7 @@ function deleteLocation(locationName) {
         </table>
       </div>
     </div>
-
+		<LocationAddMenu v-if="openNewLocation" @close="openNewLocation = false; refreshLocations();" />
     <IssueTypeAddMenu v-if="openNewIssueType" @close="openNewIssueType = false; refreshIssueTypes();"/>
   </div>
 </template>
