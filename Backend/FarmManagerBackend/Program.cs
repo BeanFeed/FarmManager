@@ -7,7 +7,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.Configure<DatabaseConfig>(builder.Configuration.GetSection("DatabaseConfiguration"));
 builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("Jwt"));
 
 builder.Services.AddScoped<UserService>();
