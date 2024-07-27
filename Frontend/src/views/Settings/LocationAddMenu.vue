@@ -48,7 +48,7 @@ function close() {
       <div class="max-w-4xl w-full rounded-lg bg-gray-200 mt-1">
         <ul class="flex items-center">
           <li class="mx-1 w-full">
-            <input placeholder="New Issue" type="text" v-model="locationName" class="w-full text-green-500 focus:outline-none bg-gray-200">
+            <input placeholder="New Location" type="text" v-model="locationName" class="w-full text-green-500 focus:outline-none bg-gray-200">
           </li>
         </ul>
       </div>
