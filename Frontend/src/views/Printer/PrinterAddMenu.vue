@@ -88,8 +88,8 @@ function close() {
 </script>
 
 <template>
-  <div class="fixed top-0 left-0 fixHeight w-screen bg-black bg-opacity-25 z-30 flex items-center justify-center">
-    <div class="bg-white p-6 rounded-3xl">
+  <div class="fixed top-0 left-0 fixHeight w-screen bg-black bg-opacity-25 z-30 flex items-center justify-center" @click.self="$emit('close')">
+    <div class="bg-white p-6 rounded-3xl z-40">
       <h1>Add Printer</h1>
       <hr class="my-2">
       <p class="text-left">Name <span v-if="showRequired" class="text-red-500">Required</span></p>

@@ -40,7 +40,7 @@ function close() {
 </script>
 
 <template>
-  <div class="fixed top-0 left-0 fixHeight w-screen bg-black bg-opacity-25 z-30 flex items-center justify-center">
+  <div class="fixed top-0 left-0 fixHeight w-screen bg-black bg-opacity-25 z-30 flex items-center justify-center" @click.self="$emit('close')">
     <div class="bg-white p-6 rounded-3xl">
       <h1>Add Location</h1>
       <hr class="my-2">
