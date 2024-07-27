@@ -5,6 +5,7 @@ import {backendUrl} from "../../main.js";
 import {toast} from "vue3-toastify";
 import {router} from "../../router.js";
 import IssueTypeAddMenu from "./IssueTypeAddMenu.vue";
+import LocationAddMenu from "./LocationAddMenu.vue";
 
 let issueTypes = ref([]);
 let locations = ref([]);
