@@ -4,7 +4,7 @@ General Setup:
 
 In docker-compose.yml
 
-Set Cors__Origin value under environment to the hostname of the machine as http://{hostname}:{Port Number}
+Set Cors__Origin value under environment to localhost or local ip address of the machine as http://{ip address}:{Port Number}
 Make sure you have the Port number set to the same value as FRONTEND_PORT.
 
 Set Jwt__Issuer and Jwt__Audience to the same value as Cors__Origin.
