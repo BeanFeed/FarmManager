@@ -78,7 +78,9 @@ function logout() {
 
 <template>
 <div v-if="!route.fullPath.startsWith('/login')" class="z-20 bg-white w-24 fixed top-0 -left-24 transition-transform duration-500 ease-in-out transform fixHeight" :class="isOpenState || width > 800 ? 'translate-x-full' : 'translate-x-0'">
-  <div v-if="width <= 800" class="pointer-events-none flex items-center justify-center absolute top-0 left-24 h-24 w-24">
+  
+  <div v-if="width <= 800" class="pointer-events-none flex items-center justify-center absolute top-0 left-24 h-24 w-14">
+    
     <div @click="isOpenState = !isOpenState" class="pointer-events-auto bg-green-500 absolute p-0 rounded-3xl h-10 w-10 flex items-center justify-center cursor-pointer">
       <i class="bi bi-chevron-left text-2xl text-white transition-transform duration-500 ease-in-out" :class="isOpenState ? 'rotate-0' : 'rotate-180'"></i>
     </div>
