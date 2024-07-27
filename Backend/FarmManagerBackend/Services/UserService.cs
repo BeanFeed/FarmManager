@@ -116,7 +116,7 @@ public class UserService
         if (userData.Name is not null)
         {
             //Check if name already exists
-            User? existingUser = await _managerContext.Users.AsNoTracking().Where(x => x.Name == userData.Name).FirstOrDefaultAsync();
+            User? existingUser = await _managerContext.Users.AsNoTracking().Where(x => x.Name.ToLower() == userData.Name.ToLower()).FirstOrDefaultAsync();
             if (existingUser is not null) throw new UserException("Name already used");
 
             user.Name = userData.Name;
