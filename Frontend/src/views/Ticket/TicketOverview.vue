@@ -41,7 +41,7 @@ onMounted(() => {
     closeOnClick: false,
     pauseOnHover: false
   });
-  axios.get(backendUrl + "/v1/ticket/gettickets?printerName=" + searchOpt.value.searchWord + "&onlyOpen=" + searchOpt.value.onlyOpen + "&sortDescending=" + searchOpt.value.sortDescending, {withCredentials: true}).then(response => {
+  axios.get(backendUrl + "/api/ticket/gettickets?printerName=" + searchOpt.value.searchWord + "&onlyOpen=" + searchOpt.value.onlyOpen + "&sortDescending=" + searchOpt.value.sortDescending, {withCredentials: true}).then(response => {
     toast.update(ticketLoadingToast, {"closeOnClick": true, render: "Loaded tickets", type: "success", isLoading: false, autoClose: 2000});
     tickets.value = response.data;
   }).catch(error => {
@@ -53,7 +53,7 @@ onMounted(() => {
 })
 
 watch(searchOpt.value,() => {
-  axios.get(backendUrl + "/v1/ticket/gettickets?printerName=" + searchOpt.value.searchWord + "&onlyOpen=" + searchOpt.value.onlyOpen + "&sortDescending=" + searchOpt.value.sortDescending, {withCredentials: true}).then(response => {
+  axios.get(backendUrl + "/api/ticket/gettickets?printerName=" + searchOpt.value.searchWord + "&onlyOpen=" + searchOpt.value.onlyOpen + "&sortDescending=" + searchOpt.value.sortDescending, {withCredentials: true}).then(response => {
     tickets.value = response.data;
     console.log(tickets.value)
   }).catch(error => {
@@ -78,7 +78,7 @@ function refreshTickets(){
     closeOnClick: false,
     pauseOnHover: false
   });
-  axios.get(backendUrl + "/v1/ticket/gettickets?printerName=" + searchOpt.value.searchWord + "&onlyOpen=" + searchOpt.value.onlyOpen + "&sortDescending=" + searchOpt.value.sortDescending, {withCredentials: true}).then(response => {
+  axios.get(backendUrl + "/api/ticket/gettickets?printerName=" + searchOpt.value.searchWord + "&onlyOpen=" + searchOpt.value.onlyOpen + "&sortDescending=" + searchOpt.value.sortDescending, {withCredentials: true}).then(response => {
     toast.update(ticketLoadingToast, {"closeOnClick": true, render: "Loaded tickets", type: "success", isLoading: false, autoClose: 2000});
     tickets.value = response.data;
     console.log(tickets.value)
@@ -92,7 +92,7 @@ function refreshTickets(){
 
 function closeTicket(ticket) {
   console.log(ticket);
-  let issueReq = axios.get(backendUrl + "/v1/ticket/getissuevariants?repairByIssue=" + ticket.issue, {withCredentials: true}).then(response => {
+  let issueReq = axios.get(backendUrl + "/api/ticket/getissuevariants?repairByIssue=" + ticket.issue, {withCredentials: true}).then(response => {
     
     issueTypes.value = response.data;
     
@@ -126,14 +126,14 @@ function submitCloseTicket() {
   }
   repair.value = "";
   repairCustom.value = "";
-  let req = axios.post(backendUrl + "/v1/ticket/closeticket", data, {withCredentials: true}).then(response => {
+  let req = axios.post(backendUrl + "/api/ticket/closeticket", data, {withCredentials: true}).then(response => {
     closeTicketOpen.value = false;
     let ticketLoadingToast = toast.loading("Loading tickets...", {
       transition: "bounce",
       closeOnClick: false,
       pauseOnHover: false
     });
-    axios.get(backendUrl + "/v1/ticket/gettickets?printerName=" + searchOpt.value.searchWord + "&onlyOpen=" + searchOpt.value.onlyOpen + "&sortDescending=" + searchOpt.value.sortDescending, {withCredentials: true}).then(response => {
+    axios.get(backendUrl + "/api/ticket/gettickets?printerName=" + searchOpt.value.searchWord + "&onlyOpen=" + searchOpt.value.onlyOpen + "&sortDescending=" + searchOpt.value.sortDescending, {withCredentials: true}).then(response => {
       toast.update(ticketLoadingToast, {"closeOnClick": true, render: "Loaded tickets", type: "success", isLoading: false, autoClose: 2000});
       tickets.value = response.data;
       console.log(tickets.value)

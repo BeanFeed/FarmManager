@@ -28,7 +28,7 @@ function submit() {
     password: password.value
   }
   
-  let req = axios.post(backendUrl + "/v1/user/createuser", data, {withCredentials: true}).then(response => {
+  let req = axios.post(backendUrl + "/api/user/createuser", data, {withCredentials: true}).then(response => {
     close();
   }).catch(error => {
     toast(error.response.data.length < 30 ? error.response.data : error.message, {

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FarmManagerBackend.Controllers;
 
 [ApiController]
-[Route("v1/[controller]/[action]")]
+[Route("api/[controller]/[action]")]
 [Authenticate]
 public class PrinterController : ControllerBase
 {

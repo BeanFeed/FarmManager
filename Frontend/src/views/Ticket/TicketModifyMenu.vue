@@ -25,11 +25,11 @@ let issueTypes = ref([]);
 let issueNoDupes = ref([]);
 let repairTypes = ref([]);
 onMounted(() => {
-  let issueReq = axios.get(backendUrl + "/v1/ticket/getissuevariants" ,{withCredentials: true}).then(response => {
+  let issueReq = axios.get(backendUrl + "/api/ticket/getissuevariants" ,{withCredentials: true}).then(response => {
     issueTypes.value = response.data;
     
     if (issueTypes.value.includes(props.ticket.issue)) {
-      let repairReq = axios.get(backendUrl + "/v1/ticket/getissuevariants?repairByIssue=" + props.ticket.issue, {withCredentials: true}).then(response => {
+      let repairReq = axios.get(backendUrl + "/api/ticket/getissuevariants?repairByIssue=" + props.ticket.issue, {withCredentials: true}).then(response => {
         repairTypes.value = response.data;
       }).catch(error => {
         toast(error.response.data.length < 30 ? error.response.data : error.body, {
@@ -55,7 +55,7 @@ onMounted(() => {
     }
   });
 
-  let usersReq = axios.get(backendUrl + "/v1/user/getusers" ,{withCredentials: true}).then(response => {
+  let usersReq = axios.get(backendUrl + "/api/user/getusers" ,{withCredentials: true}).then(response => {
     allUsers.value = response.data;
     for (let i = 0; i < response.data.length; i++) {
       if (hasPerm(response.data[i], "Technician")) allTechs.value[allTechs.value.length] = response.data[i];
@@ -77,7 +77,7 @@ onMounted(() => {
 
 watch(issue, (value, oldValue) => {
   if (value !== "custom") {
-    let repairReq = axios.get(backendUrl + "/v1/ticket/getissuevariants?repairByIssue=" + value, {withCredentials: true}).then(response => {
+    let repairReq = axios.get(backendUrl + "/api/ticket/getissuevariants?repairByIssue=" + value, {withCredentials: true}).then(response => {
       repairTypes.value = response.data;
     }).catch(error => {
       toast(error.response.data.length < 30 ? error.response.data : error.body, {
@@ -124,7 +124,7 @@ function submit() {
   } else data.reopen = true;
   data.id = props.ticket.ticketId;
   
-  let req = axios.post(backendUrl + "/v1/ticket/modifyticket", data, {withCredentials: true}).then(response => {
+  let req = axios.post(backendUrl + "/api/ticket/modifyticket", data, {withCredentials: true}).then(response => {
     openedBy = ref(null);
     technician = ref(null);
     issue = ref("");
@@ -159,7 +159,7 @@ function deleteTicket() {
     return;
   }
   
-  let req = axios.delete(backendUrl + "/v1/ticket/deleteticket?id=" + props.ticket.ticketId,{withCredentials: true}).then(response => {
+  let req = axios.delete(backendUrl + "/api/ticket/deleteticket?id=" + props.ticket.ticketId,{withCredentials: true}).then(response => {
     openedBy = ref(null);
     technician = ref(null);
     issue = ref("");

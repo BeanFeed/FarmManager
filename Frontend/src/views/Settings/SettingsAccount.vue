@@ -29,7 +29,7 @@ function changePassword() {
     return;
   }
   
-  let req = axios.post(backendUrl + "/v1/user/changepassword", data, {withCredentials: true}).then(response => {
+  let req = axios.post(backendUrl + "/api/user/changepassword", data, {withCredentials: true}).then(response => {
     router.push('/login');
   }).catch(error => {
     toast(error.response.data.length < 30 ? error.response.data : error.body, {

@@ -20,7 +20,7 @@ let locationOptions = ref([])
 
 
 onMounted(() => {
-  let locationReq =  axios.get(backendUrl + "/v1/ticket/getlocations", {withCredentials: true}).then(response => {
+  let locationReq =  axios.get(backendUrl + "/api/ticket/getlocations", {withCredentials: true}).then(response => {
     locationOptions.value = response.data;
   }).catch(error => {
     toast(error.response.data.length < 30 ? error.response.data : error.body, {
@@ -52,7 +52,7 @@ function submit() {
     return;
   }
   
-  let req = axios.post(backendUrl + "/v1/printer/modifyprinter", data, {withCredentials: true}).then(response => {
+  let req = axios.post(backendUrl + "/api/printer/modifyprinter", data, {withCredentials: true}).then(response => {
     close();
   }).catch(error => {
     toast(error.response.data.length < 30 ? error.response.data : error.body, {
@@ -84,7 +84,7 @@ function deletePrinter() {
     return;
   }
   
-  let req = axios.delete(backendUrl + "/v1/printer/removeprinter?name=" + props.printer.name, {withCredentials: true}).then(response => {
+  let req = axios.delete(backendUrl + "/api/printer/removeprinter?name=" + props.printer.name, {withCredentials: true}).then(response => {
     close();
   }).catch(error => {
     toast(error.response.data.length < 30 ? error.response.data : error.message, {

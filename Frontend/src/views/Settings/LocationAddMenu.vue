@@ -15,7 +15,7 @@ function submit() {
     showRequired.value = true;
     return;
   }
-  let req = axios.post(backendUrl + "/v1/ticket/addlocation?Name=" + locationName.value, {}, {withCredentials: true}).then(response => {
+  let req = axios.post(backendUrl + "/api/ticket/addlocation?Name=" + locationName.value, {}, {withCredentials: true}).then(response => {
     close();
   }).catch(error => {
     toast(error.response.data.length < 30 ? error.response.data : error.body, {

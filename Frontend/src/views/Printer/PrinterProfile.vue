@@ -36,7 +36,7 @@ onMounted(() => {
     closeOnClick: false,
     pauseOnHover: false
   });
-  axios.get(backendUrl + "/v1/printer/getprinter?name=" + printerName, {withCredentials: true}).then(response => {
+  axios.get(backendUrl + "/api/printer/getprinter?name=" + printerName, {withCredentials: true}).then(response => {
     toast.update(loadingToast, {"closeOnClick": true, render: "Loaded printers", type: "success", isLoading: false, autoClose: 2000});
     printer.value = response.data;
   }).catch(error => {
@@ -52,7 +52,7 @@ onMounted(() => {
       autoClose: 2000,
       pauseOnHover: false
     });
-    axios.get(backendUrl + "/v1/ticket/gettickets?printerName=" + printerName, {withCredentials: true}).then(response => {
+    axios.get(backendUrl + "/api/ticket/gettickets?printerName=" + printerName, {withCredentials: true}).then(response => {
       
       toast.update(ticketLoadingToast, {"closeOnClick": true, render: "Loaded tickets", type: "success", isLoading: false, autoClose: 2000});
       tickets.value = response.data;
@@ -86,7 +86,7 @@ const downloadQrCode = () => {
 
 function refreshTickets() {
   if (!hasPerm(userStore,'Technician')) return;
-  axios.get(backendUrl + "/v1/ticket/gettickets?printerName=" + printerName, {withCredentials: true}).then(response => {
+  axios.get(backendUrl + "/api/ticket/gettickets?printerName=" + printerName, {withCredentials: true}).then(response => {
     
     tickets.value = response.data;
   }).catch(error => {

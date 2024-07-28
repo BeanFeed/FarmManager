@@ -16,7 +16,7 @@ let repair = ref("");
 let showRequired = ref(false);
 
 onMounted(() => {
-  let issueReq = axios.get(backendUrl + "/v1/ticket/getissuevariants", {withCredentials: true}).then(response => {
+  let issueReq = axios.get(backendUrl + "/api/ticket/getissuevariants", {withCredentials: true}).then(response => {
     issueTypes.value = response.data;
   }).catch(error => {
     console.log(error)
@@ -45,7 +45,7 @@ function submit() {
     repair: repair.value
   };
 
-  let req = axios.post(backendUrl + "/v1/ticket/addissuetype", data, {withCredentials:true}).then(response => {
+  let req = axios.post(backendUrl + "/api/ticket/addissuetype", data, {withCredentials:true}).then(response => {
     close();
   }).catch(error => {
     toast(error.response.data.length < 30 ? error.response.data : error.body, {

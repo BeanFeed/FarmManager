@@ -10,6 +10,7 @@
     <ItemGroup>
         <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
         <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.2.0" />
+        <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.32" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.31" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0"/>
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.35.0" />
@@ -26,9 +27,8 @@
       <ProjectReference Include="..\DAL\DAL.csproj" />
     </ItemGroup>
 
+
     <ItemGroup>
-        <None Update="run.sh">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
+      <Folder Include="wwwroot\" />
     </ItemGroup>
 </Project>

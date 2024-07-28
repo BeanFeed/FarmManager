@@ -46,6 +46,11 @@ builder.Services.AddRouting(options => options.LowercaseUrls = true);
 
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddSpaStaticFiles(configuration =>
+{
+    configuration.RootPath = "wwwroot";
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -55,9 +60,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-if(bool.Parse(builder.Configuration["UseHttpsRedirection"])) app.UseHttpsRedirection();
-
-app.UseCors("Main");
+//app.UseCors("Main");
 /*
 app.Use((context, next) =>
 {
@@ -69,8 +72,18 @@ app.Use((context, next) =>
 });
 */
 
-
-
-app.MapControllers();
+app.UseRouting();
+app.UseEndpoints(e =>
+{
+    e.MapControllers();
+});
+app.UseSpaStaticFiles();
+app.UseSpa(spa =>
+{
+    if (app.Environment.IsDevelopment())
+    {
+        spa.UseProxyToSpaDevelopmentServer("http://localhost:3000");
+    }
+});
 
 app.Run();

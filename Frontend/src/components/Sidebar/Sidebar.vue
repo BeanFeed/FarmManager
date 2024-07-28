@@ -38,7 +38,7 @@ let options = ref({
 
 onMounted(() => {
   if(!route.path.startsWith('/login')) {
-    let req = axios.get(backendUrl + "/v1/user/me", {withCredentials: true}).then(res => {
+    let req = axios.get(backendUrl + "/api/user/me", {withCredentials: true}).then(res => {
       userStore.setUser({
         name: res.data.name,
         id: res.data.id,
@@ -71,7 +71,7 @@ watch(userStore, () => {
 
 function logout() {
   userStore.clearUser();
-  let req = axios.post(backendUrl + "/v1/user/logout", {}, {withCredentials: true}).then().catch();
+  let req = axios.post(backendUrl + "/api/user/logout", {}, {withCredentials: true}).then().catch();
   router.push("/login")
 }
 </script>

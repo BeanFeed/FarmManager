@@ -25,7 +25,7 @@ let showRequired = ref(false);
 onMounted(() => {
   if (props.printerName !== null) printerName.value = props.printerName;
   else {
-    let printerReq = axios.get(backendUrl + "/v1/printer/getprinters", {withCredentials: true}).then(response => {
+    let printerReq = axios.get(backendUrl + "/api/printer/getprinters", {withCredentials: true}).then(response => {
       printerOptions.value = response.data;
     }).catch(error => {
       toast(error.response.data.length < 30 ? error.response.data : error.body, {
@@ -41,7 +41,7 @@ onMounted(() => {
     });
   }
   
-  let issueReq = axios.get(backendUrl + "/v1/ticket/getissuevariants", {withCredentials: true}).then(response => {
+  let issueReq = axios.get(backendUrl + "/api/ticket/getissuevariants", {withCredentials: true}).then(response => {
     issueTypes.value = response.data;
   }).catch(error => {
     console.log(error)
@@ -70,7 +70,7 @@ function submitTicket() {
   }
   issue = ref("");
   issueCustom = ref("");
-  let req = axios.post(backendUrl + "/v1/ticket/openticket", data, {withCredentials: true}).then(response => {
+  let req = axios.post(backendUrl + "/api/ticket/openticket", data, {withCredentials: true}).then(response => {
     printerName = ref("");
     issue = ref("");
     issueCustom = ref("");

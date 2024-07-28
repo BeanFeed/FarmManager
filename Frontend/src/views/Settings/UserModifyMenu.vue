@@ -24,7 +24,7 @@ function submit() {
   if (newRole.value !== "") data.role = newRole.value;
   if (newPassword.value !== "") data.password = newPassword.value;
   
-  let req = axios.post(backendUrl + "/v1/user/modifyuser", data, {withCredentials: true}).then(response => {
+  let req = axios.post(backendUrl + "/api/user/modifyuser", data, {withCredentials: true}).then(response => {
     close();
   }).catch(error => {
     toast(error.response.data.length < 30 ? error.response.data : error.message, {
@@ -47,7 +47,7 @@ function deleteUser() {
     return;
   }
   
-  let req = axios.delete(backendUrl + "/v1/user/deleteuser?userId=" + props.user.id,  {withCredentials: true}).then(response => {
+  let req = axios.delete(backendUrl + "/api/user/deleteuser?userId=" + props.user.id,  {withCredentials: true}).then(response => {
     close();
   }).catch(error => {
     toast(error.response.data.length < 30 ? error.response.data : error.message, {

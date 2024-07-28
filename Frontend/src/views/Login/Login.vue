@@ -24,9 +24,9 @@ function login() {
     password: password.value,
   }
   
-  let req = axios.post(backendUrl + "/v1/user/login", data, {withCredentials: true}).then(response => {
+  let req = axios.post(backendUrl + "/api/user/login", data, {withCredentials: true}).then(response => {
        
-    let req2 = axios.get(backendUrl + "/v1/user/me", {withCredentials: true}).then(res => {
+    let req2 = axios.get(backendUrl + "/api/user/me", {withCredentials: true}).then(res => {
       userStore.setUser({
         name: res.data.name,
         id: res.data.id,

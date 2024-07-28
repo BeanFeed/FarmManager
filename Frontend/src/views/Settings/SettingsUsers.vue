@@ -17,7 +17,7 @@ let route = useRoute();
 let userStore = UserStore();
 
 onMounted(() => {
-  let userReq = axios.get(backendUrl + "/v1/user/getusers", {withCredentials: true}).then(response => {
+  let userReq = axios.get(backendUrl + "/api/user/getusers", {withCredentials: true}).then(response => {
     users.value = response.data;
   }).catch(error => {
     toast(error.response.data.length < 30 ? error.response.data : error.message, {
@@ -34,7 +34,7 @@ let modifyUser = ref(false);
 let modifyingUser = ref({});
 
 function refresh() {
-  let userReq = axios.get(backendUrl + "/v1/user/getusers", {withCredentials: true}).then(response => {
+  let userReq = axios.get(backendUrl + "/api/user/getusers", {withCredentials: true}).then(response => {
     users.value = response.data;
   }).catch(error => {
     toast(error.response.data.length < 30 ? error.response.data : error.message, {
@@ -51,7 +51,7 @@ function refresh() {
 }
 
 function search(name) {
-  let userReq = axios.get(backendUrl + "/v1/user/getusers?name=" + name, {withCredentials: true}).then(response => {
+  let userReq = axios.get(backendUrl + "/api/user/getusers?name=" + name, {withCredentials: true}).then(response => {
     users.value = response.data;
   }).catch(error => {
     toast(error.response.data.length < 30 ? error.response.data : error.message, {

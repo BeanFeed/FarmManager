@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FarmManagerBackend.Controllers;
 
 [ApiController]
-[Route("v1/[controller]/[action]")]
+[Route("api/[controller]/[action]")]
 public class UserController : ControllerBase
 {
     private readonly UserService _userService;

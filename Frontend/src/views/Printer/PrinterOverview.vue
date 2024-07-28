@@ -24,7 +24,7 @@ onMounted(() => {
     closeOnClick: false,
     pauseOnHover: false
   });
-  let req = axios.get(backendUrl + "/v1/printer/getprinters", {withCredentials: true}).then(response => {
+  let req = axios.get(backendUrl + "/api/printer/getprinters", {withCredentials: true}).then(response => {
     printers.value = response.data;
     toast.update(loadingToast, {"closeOnClick": true, render: "Loaded printers", type: "success", isLoading: false, autoClose: 2000});
   }).catch(error => {
@@ -37,7 +37,7 @@ onMounted(() => {
 });
 
 function search(name) {
-  axios.get(backendUrl + "/v1/printer/getprinters?name=" + name, {withCredentials: true}).then(response => {
+  axios.get(backendUrl + "/api/printer/getprinters?name=" + name, {withCredentials: true}).then(response => {
     printers.value = response.data;
   }).catch(error => {
     console.log(error);
@@ -67,7 +67,7 @@ function closeModifyPrinter() {
   openModify.value = false
   modifyingPrinter.value = {};
 
-  axios.get(backendUrl + "/v1/printer/getprinters", {withCredentials: true}).then(response => {
+  axios.get(backendUrl + "/api/printer/getprinters", {withCredentials: true}).then(response => {
     printers.value = response.data;
   }).catch(error => {
     console.log(error);
@@ -87,7 +87,7 @@ function closeModifyPrinter() {
 function closeNewPrinter() {
   newPrinter.value = false;
 
-  axios.get(backendUrl + "/v1/printer/getprinters", {withCredentials: true}).then(response => {
+  axios.get(backendUrl + "/api/printer/getprinters", {withCredentials: true}).then(response => {
     printers.value = response.data;
   }).catch(error => {
     console.log(error);

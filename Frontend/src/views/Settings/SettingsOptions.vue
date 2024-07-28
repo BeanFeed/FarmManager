@@ -16,7 +16,7 @@ onMounted(() => {
 })
 
 function refreshIssueTypes() {
-  let typeReq = axios.get(backendUrl + "/v1/ticket/getissuetypes", {withCredentials: true}).then(response => {
+  let typeReq = axios.get(backendUrl + "/api/ticket/getissuetypes", {withCredentials: true}).then(response => {
     issueTypes.value = response.data;
   }).catch(error => {
     toast(error.response.data.length < 30 ? error.response.data : error.body, {
@@ -33,7 +33,7 @@ function refreshIssueTypes() {
 }
 
 function refreshLocations() {
-  let locationReq =  axios.get(backendUrl + "/v1/ticket/getlocations", {withCredentials: true}).then(response => {
+  let locationReq =  axios.get(backendUrl + "/api/ticket/getlocations", {withCredentials: true}).then(response => {
     locations.value = response.data;
   }).catch(error => {
     toast(error.response.data.length < 30 ? error.response.data : error.body, {
@@ -54,7 +54,7 @@ let openNewLocation = ref(false);
 function deleteIssueType(issue, repair) {
   if (!confirm("Are you sure you want to delete this issue type?")) return;
   
-  let req = axios.delete(backendUrl + "/v1/ticket/removeissuetype?issue=" + issue + "&repair=" + repair, {withCredentials: true}).then(response => {
+  let req = axios.delete(backendUrl + "/api/ticket/removeissuetype?issue=" + issue + "&repair=" + repair, {withCredentials: true}).then(response => {
     refreshIssueTypes();
   }).catch(error => {
     toast(error.response.data.length < 30 ? error.response.data : error.body, {
@@ -73,7 +73,7 @@ function deleteIssueType(issue, repair) {
 function deleteLocation(locationName) {
   if (!confirm("Are you sure you want to delete this location?")) return;
 
-  let req = axios.delete(backendUrl + "/v1/ticket/removelocation?name=" + locationName, {withCredentials: true}).then(response => {
+  let req = axios.delete(backendUrl + "/api/ticket/removelocation?name=" + locationName, {withCredentials: true}).then(response => {
     refreshLocations();
   }).catch(error => {
     toast(error.response.data.length < 30 ? error.response.data : error.body, {
