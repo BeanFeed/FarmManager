@@ -71,7 +71,7 @@ onMounted(() => {
 <div class="flex items-center justify-center fixHeight">
   <div>
     <h1 class="mb-4">Farm Manager</h1>
-    <div class="bg-white p-6 rounded-3xl">
+    <form v-on:submit.prevent="login" class="bg-white p-6 rounded-3xl">
       <h1>Login</h1>
       <p class="text-left my-2">Name <span v-if="failed" class="text-red-500">Required</span></p>
       <div class="max-w-4xl w-full p-3 rounded-3xl bg-gray-100">
@@ -89,10 +89,8 @@ onMounted(() => {
           </li>
         </ul>
       </div>
-      <div @click="login" class="bg-green-500 text-white p-3 rounded-3xl mt-4 cursor-pointer hover:bg-green-600">
-        <h3>Login</h3>
-      </div>
-    </div>
+      <input class="w-full bg-green-500 text-white p-3 rounded-3xl mt-4 cursor-pointer hover:bg-green-600" type="submit" value="Login">
+    </form>
   </div>
 </div>
 </template>

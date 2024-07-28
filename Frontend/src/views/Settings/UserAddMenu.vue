@@ -56,7 +56,7 @@ function close() {
 
 <template>
   <div class="fixed top-0 left-0 fixHeight w-screen bg-black bg-opacity-25 z-30 flex items-center justify-center" @click.self="$emit('close')">
-    <div class="bg-white p-6 rounded-3xl">
+    <form v-on:submit.prevent="submit" class="bg-white p-6 rounded-3xl">
       <h1>Add User</h1>
       <hr class="my-2">
       <p class="text-left">Name <span v-if="showRequired" class="text-red-500">Required</span></p>
@@ -85,14 +85,10 @@ function close() {
       </div>
       <hr class="my-2">
       <div class="flex justify-center">
-        <div @click="submit" class="w-full bg-green-500 hover:bg-green-600 cursor-pointer p-2 rounded-lg mr-1">
-          <p class="text-white">Submit</p>
-        </div>
-        <div @click="close" class="w-full bg-gray-200 hover:bg-gray-300 cursor-pointer p-2 rounded-lg ml-1">
-          <p>Cancel</p>
-        </div>
+        <input class="w-full bg-green-500 hover:bg-green-600 cursor-pointer p-2 rounded-lg mr-1 text-white" type="submit" value="Submit">
+        <input @click="close" class="w-full bg-gray-200 hover:bg-gray-300 cursor-pointer p-2 rounded-lg ml-1" type="button" value="Cancel">
       </div>
-    </div>
+    </form>
   </div>
 </template>
 

@@ -52,8 +52,8 @@ function refreshLocations() {
 let openNewIssueType = ref(false);
 let openNewLocation = ref(false);
 function deleteIssueType(issue, repair) {
-  //TODO: implement and add create issue type. Also implement locations
-
+  if (!confirm("Are you sure you want to delete this issue type?")) return;
+  
   let req = axios.delete(backendUrl + "/v1/ticket/removeissuetype?issue=" + issue + "&repair=" + repair, {withCredentials: true}).then(response => {
     refreshIssueTypes();
   }).catch(error => {
@@ -71,6 +71,8 @@ function deleteIssueType(issue, repair) {
 }
 
 function deleteLocation(locationName) {
+  if (!confirm("Are you sure you want to delete this location?")) return;
+
   let req = axios.delete(backendUrl + "/v1/ticket/removelocation?name=" + locationName, {withCredentials: true}).then(response => {
     refreshLocations();
   }).catch(error => {
@@ -93,7 +95,7 @@ function deleteLocation(locationName) {
     <div class="w-full">
       <h1>Issue Types</h1>
       <hr class="my-2">
-      <div class="h-[45vh] overflow-auto">
+      <div class="max-h-[30vh] overflow-auto">
         <table
             class="min-w-full text-left text-surface ">
           <thead
@@ -127,7 +129,7 @@ function deleteLocation(locationName) {
     <div class="w-full border-t-1">
       <h1>Locations</h1>
       <hr class="my-2">
-      <div class="h-[45vh] overflow-auto">
+      <div class="max-h-[30vh] overflow-auto">
         <table
             class="min-w-full text-left text-surface ">
           <thead

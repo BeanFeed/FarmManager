@@ -109,7 +109,7 @@ function cancel() {
 
 <template>
   <div class="fixed top-0 left-0 fixHeight w-screen bg-black bg-opacity-25 z-30 flex items-center justify-center" @click.self="$emit('complete')">
-    <div class="bg-white p-6 rounded-3xl">
+    <form v-on:submit.prevent="submitTicket" class="bg-white p-6 rounded-3xl">
       <h1>New Ticket</h1>
       <hr class="my-2">
       <div class="flex flex-col">
@@ -137,17 +137,13 @@ function cancel() {
         </template>
         <hr class="my-2">
         <div class="flex justify-center w-full">
-          <div @click="submitTicket" class="w-full bg-green-500 hover:bg-green-600 cursor-pointer p-2 rounded-lg mr-1">
-            <p class="text-white">Submit</p>
-          </div>
-          <div @click="cancel" class="w-full bg-gray-200 hover:bg-gray-300 cursor-pointer p-2 rounded-lg ml-1">
-            <p>Cancel</p>
-          </div>
+          <input @click="submitTicket" class="w-full bg-green-500 hover:bg-green-600 cursor-pointer p-2 rounded-lg mr-1 text-white" type="submit" value="Submit">
+          <input @click="cancel" class="w-full bg-gray-200 hover:bg-gray-300 cursor-pointer p-2 rounded-lg ml-1" type="button" value="Cancel">
         </div>
         
       </div>
 
-    </div>
+    </form>
   </div>
 </template>
 
