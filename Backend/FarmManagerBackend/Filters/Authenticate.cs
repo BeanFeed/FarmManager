@@ -20,7 +20,7 @@ public class Authenticate : Attribute, IAsyncActionFilter
             {
                 Domain = context.HttpContext.Request.Host.Host,
                 HttpOnly = true,
-                Expires = DateTimeOffset.UtcNow.AddMinutes(15),
+                Expires = DateTimeOffset.UtcNow.AddHours(2),
                 Secure = settings.JwtConfig.Secure,
                 SameSite = Utils.GetSSM(settings.JwtConfig.SSM)
                 

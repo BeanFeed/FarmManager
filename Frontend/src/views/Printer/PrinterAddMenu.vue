@@ -16,12 +16,48 @@ let model = ref("");
 let locationName = ref("");
 let purchaseDate = ref("");
 
-let locationOptions = ref([])
+let locationOptions = ref([]);
+let printerBrands = ref([]);
+let modelOptions = ref([]);
 let showRequired = ref(false);
 
 onMounted(() => {
   let locationReq =  axios.get(backendUrl + "/api/ticket/getlocations", {withCredentials: true}).then(response => {
     locationOptions.value = response.data;
+  }).catch(error => {
+    toast(error.response.data.length < 30 ? error.response.data : error.body, {
+      "type": "error",
+      "closeOnClick": true,
+      "autoClose": 2000,
+      "pauseOnFocusLoss": false,
+      "transition": "bounce"
+    });
+    if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
+      router.push('/login');
+    }
+  });
+  
+  let printerBrandReq = axios.get(backendUrl + "/api/printer/getprintertypevariants", {withCredentials: true}).then(response => {
+    printerBrands.value = response.data;
+  }).catch(error => {
+    toast(error.response.data.length < 30 ? error.response.data : error.body, {
+      "type": "error",
+      "closeOnClick": true,
+      "autoClose": 2000,
+      "pauseOnFocusLoss": false,
+      "transition": "bounce"
+    });
+    if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
+      router.push('/login');
+    }
+  });
+})
+
+watch(brand, () => {
+  if (brand.value === "" || brand.value === "custom") return;
+  
+  let printerReq = axios.get(backendUrl + "/api/printer/getprintertypevariants?modelByBrand=" + brand.value, {withCredentials: true}).then(response => {
+    modelOptions.value = response.data;
   }).catch(error => {
     toast(error.response.data.length < 30 ? error.response.data : error.body, {
       "type": "error",
@@ -111,22 +147,14 @@ function close() {
       </div>
       <hr class="my-2">
       <p class="text-left">Brand <span v-if="showRequired" class="text-red-500">Required</span></p>
-      <div class="max-w-4xl w-full rounded-lg bg-gray-200 mt-1">
-        <ul class="flex items-center">
-          <li class="mx-1 w-full">
-            <input type="text" v-model="brand" class="w-full text-green-500 focus:outline-none bg-gray-200">
-          </li>
-        </ul>
-      </div>
+      <select v-model="brand" class="text-green-500 p-1 bg-gray-200 rounded-lg w-full">
+        <option v-for="(brand, index) in printerBrands" :value="brand">{{brand}}</option>
+      </select>
       <hr class="my-2">
       <p class="text-left">Model <span v-if="showRequired" class="text-red-500">Required</span></p>
-      <div class="max-w-4xl w-full rounded-lg bg-gray-200 mt-1">
-        <ul class="flex items-center">
-          <li class="mx-1 w-full">
-            <input type="text" v-model="model" class="w-full text-green-500 focus:outline-none bg-gray-200">
-          </li>
-        </ul>
-      </div>
+      <select v-model="model" class="text-green-500 p-1 bg-gray-200 rounded-lg w-full">
+        <option v-for="(model, index) in modelOptions" :value="model">{{model}}</option>
+      </select>
       <hr class="my-2">
       <p class="text-left">Location <span v-if="showRequired" class="text-red-500">Required</span></p>
       <select v-model="locationName" class="text-green-500 p-1 bg-gray-200 rounded-lg w-full">

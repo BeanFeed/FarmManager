@@ -46,6 +46,60 @@ public class PrinterService
         await _managerContext.SaveChangesAsync();
     }
 
+    public async Task AddPrinterType(PrinterTypeModel printerType)
+    {
+        bool exists =
+            await _managerContext.PrinterTypes.AnyAsync(x =>
+                x.Brand == printerType.Brand && x.Model == printerType.Model);
+        if (exists) throw new PrinterException("Model already exists");
+
+        PrinterType pType = new PrinterType()
+        {
+            Brand = printerType.Brand,
+            Model = printerType.Model
+        };
+
+        await _managerContext.PrinterTypes.AddAsync(pType);
+        await _managerContext.SaveChangesAsync();
+    }
+
+    public async Task RemovePrinterType(int id)
+    {
+        PrinterType? printerType = await _managerContext.PrinterTypes.FindAsync(id);
+        if (printerType is null) throw new PrinterException("Printer Type not found");
+
+        _managerContext.PrinterTypes.Remove(printerType);
+        await _managerContext.SaveChangesAsync();
+    }
+
+    public async Task<PrinterType[]> GetPrinterTypes()
+    {
+        PrinterType[] printerTypes = await _managerContext.PrinterTypes.ToArrayAsync();
+        return printerTypes;
+    }
+
+    public async Task<string[]> GetPrinterTypeVariants(string? modelByBrand = null)
+    {
+        List<PrinterType> printerTypes = await _managerContext.PrinterTypes.OrderBy(x => x.Brand).ToListAsync();
+        List<string> returnList = new List<string>();
+        if (modelByBrand != null)
+        {
+            foreach (PrinterType printerType in printerTypes)
+            {
+                if(printerType.Brand == modelByBrand) returnList.Add(printerType.Model);
+            }
+        }
+        else
+        {
+            foreach (PrinterType printerType in printerTypes)
+            {
+                if(!returnList.Contains(printerType.Brand)) returnList.Add(printerType.Brand);
+            }
+        }
+
+        return returnList.ToArray();
+    }
+
     public async Task ModifyPrinter(ModifyPrinterModel printerData)
     {
         Printer? printer = await _managerContext.Printers.FindAsync(printerData.Name);

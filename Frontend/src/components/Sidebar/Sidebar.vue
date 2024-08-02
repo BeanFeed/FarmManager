@@ -30,7 +30,7 @@ let options = ref({
   Settings: {
     icon: "bi bi-gear",
     text: "Settings",
-    route: "/settings/account",
+    route: "/settings",
     role: "Member"
   }
 })

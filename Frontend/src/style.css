@@ -65,8 +65,7 @@ button:focus-visible {
 }
 
 .fixHeight {
-  min-height: 100dvh;
-  min-height: -webkit-fill-available;
+  min-height: 100vh;
 }
 
 input {
@@ -84,4 +83,11 @@ input {
   }
   
   
+}
+
+@media (pointer: none), (pointer: coarse) {
+  .fixHeight {
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+  }
 }

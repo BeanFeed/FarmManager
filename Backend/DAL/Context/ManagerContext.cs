@@ -15,6 +15,7 @@ public class ManagerContext : DbContext
     public DbSet<Session> Sessions { get; set; }
     public DbSet<Location> Locations { get; set; }
     public DbSet<IssueType> IssueTypes { get; set; }
+    public DbSet<PrinterType> PrinterTypes { get; set; }
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

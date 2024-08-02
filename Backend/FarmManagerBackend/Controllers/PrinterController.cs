@@ -53,6 +53,59 @@ public class PrinterController : ControllerBase
 
     [HttpPost]
     [Authorize(Role = Roles.HeadTechnician)]
+    public async Task<IActionResult> AddPrinterType(PrinterTypeModel printerType)
+    {
+        try
+        {
+            await _printerService.AddPrinterType(printerType);
+        }
+        catch (PrinterException e)
+        {
+            return BadRequest(e.Message);
+        }
+
+        return Ok("Printer Type added");
+    }
+    
+    [HttpDelete]
+    [Authorize(Role = Roles.HeadTechnician)]
+    public async Task<IActionResult> RemovePrinterType(int id)
+    {
+        try
+        {
+            await _printerService.RemovePrinterType(id);
+        }
+        catch (PrinterException e)
+        {
+            return BadRequest(e.Message);
+        }
+
+        return Ok("Removed Printer Type");
+    }
+
+    [HttpGet]
+    [Authorize(Role = Roles.HeadTechnician)]
+    public async Task<IActionResult> GetPrinterTypes()
+    {
+        return Ok(await _printerService.GetPrinterTypes());
+    }
+
+    [HttpGet]
+    [Authorize(Role = Roles.HeadTechnician)]
+    public async Task<IActionResult> GetPrinterTypeVariants(string? modelByBrand)
+    {
+        if (modelByBrand != null)
+        {
+            return Ok(await _printerService.GetPrinterTypeVariants(modelByBrand));
+        }
+        else
+        {
+            return Ok(await _printerService.GetPrinterTypeVariants());
+        }
+    }
+
+    [HttpPost]
+    [Authorize(Role = Roles.HeadTechnician)]
     public async Task<IActionResult> ModifyPrinter(ModifyPrinterModel printerData)
     {
         try
