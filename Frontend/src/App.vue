@@ -7,7 +7,7 @@ let route = useRoute();
 </script>
 
 <template>
-  <div class="w-screen">
+  <div class="w-screen fixHeight">
     <Sidebar v-if="!route.fullPath.startsWith('/login')"/>
     <RouterView/>
   </div>
