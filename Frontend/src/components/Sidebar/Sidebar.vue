@@ -35,31 +35,6 @@ let options = ref({
   }
 })
 
-
-onMounted(() => {
-  if(!route.path.startsWith('/login')) {
-    let req = axios.get(backendUrl + "/api/user/me", {withCredentials: true}).then(res => {
-      userStore.setUser({
-        name: res.data.name,
-        id: res.data.id,
-        role: res.data.role === "HeadTechnician" ? "Head Technician" : res.data.role
-      });
-    }).catch(error => {
-      userStore.clearUser();
-      toast(error.response.data.length < 30 ? error.response.data : error.body, {
-        "type": "error",
-        "closeOnClick": true,
-        "autoClose": 2000,
-        "pauseOnFocusLoss": false,
-        "transition": "bounce"
-      });
-      if (error.response.data === "User not logged in" || error.response.data === "Session Invalid") {
-        router.push('/login');
-      }
-    });
-  }
-})
-
 function getColor(setRoute) {
   if (route.fullPath.startsWith(setRoute)) return "bg-gray-200";
   return "bg-white";
