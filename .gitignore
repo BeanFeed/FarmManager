@@ -692,3 +692,5 @@ yarn-error.log
 /Backend/FarmManagerBackend/DbConfig.config
 /Backend/DAL/Connection.txt
 /Backend/FarmManagerBackend/Config.env
+/Backend/FarmManagerBackend/wwwroot/index.html
+/Backend/FarmManagerBackend/wwwroot/assets
