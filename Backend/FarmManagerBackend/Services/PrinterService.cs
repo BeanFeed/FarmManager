@@ -42,6 +42,8 @@ public class PrinterService
         Printer? printer = await _managerContext.Printers.FindAsync(name);
         if (printer is null) throw new PrinterException("Printer not found");
 
+        await CloseOpenTickets(printer.Name);
+        
         _managerContext.Printers.Remove(printer);
         await _managerContext.SaveChangesAsync();
     }
@@ -153,5 +155,20 @@ public class PrinterService
         else printers = await _managerContext.Printers.Where(x => x.Name.Contains(name))
             .Include(printer => printer.Location).ToArrayAsync();
         return printers;
+    }
+    
+    private async Task CloseOpenTickets(string printerName)
+    {
+        Ticket[] tickets = await _managerContext.Tickets.Where(x => x.Printer == printerName && x.DateClosed == null).ToArrayAsync();
+        
+        for (int i = 0; i < tickets.Length; i++)
+        {
+            tickets[i].DateClosed = DateTime.Now;
+            tickets[i].Repair = "Auto closed because printer was deleted.";
+
+            _managerContext.Tickets.Update(tickets[i]);
+        }
+
+        await _managerContext.SaveChangesAsync();
     }
 }
