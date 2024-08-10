@@ -18,7 +18,7 @@ let loading = ref(false);
 let showRequired = ref(false);
 
 onMounted(() => {
-  let issueReq = axios.get(backendUrl + "/api/printer/getprintertypevariants", {withCredentials: true}).then(response => {
+  axios.get(backendUrl + "/api/printer/getprintertypevariants", {withCredentials: true}).then(response => {
     printerTypes.value = response.data;
     brand.value = response.data[0];
   }).catch(error => {
@@ -50,7 +50,7 @@ function submit() {
 
   loading.value = true;
   
-  let req = axios.post(backendUrl + "/api/printer/addprintertype", data, {withCredentials:true}).then(response => {
+  axios.post(backendUrl + "/api/printer/addprintertype", data, {withCredentials:true}).then(() => {
     close();
   }).catch(error => {
     loading.value = false;
@@ -87,7 +87,7 @@ function close() {
       <hr class="my-2">
       <p class="text-left">Brand <span v-if="showRequired" class="text-red-500">Required</span></p>
       <select v-model="brand" class="text-green-500 p-1 w-full bg-gray-200 rounded-lg">
-        <option v-for="(printer, index) in printerTypes" :value="brand">{{printer}}</option>
+        <option v-for="(printer) in printerTypes" :value="brand">{{printer}}</option>
         <option value="custom" class="font-bold">New</option>
       </select>
       <template v-if="brand==='custom'">

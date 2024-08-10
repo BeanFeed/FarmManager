@@ -27,7 +27,7 @@ function submit() {
   if (newRole.value !== "") data.role = newRole.value;
   if (newPassword.value !== "") data.password = newPassword.value;
   loading.value = true;
-  let req = axios.post(backendUrl + "/api/user/modifyuser", data, {withCredentials: true}).then(response => {
+  axios.post(backendUrl + "/api/user/modifyuser", data, {withCredentials: true}).then(() => {
     close();
   }).catch(error => {
     loading.value = false;
@@ -51,7 +51,7 @@ function deleteUser() {
     return;
   }
   delloading.value = true;
-  let req = axios.delete(backendUrl + "/api/user/deleteuser?userId=" + props.user.id,  {withCredentials: true}).then(response => {
+  axios.delete(backendUrl + "/api/user/deleteuser?userId=" + props.user.id,  {withCredentials: true}).then(() => {
     close();
   }).catch(error => {
     delloading.value = false;
@@ -66,9 +66,9 @@ function deleteUser() {
 }
 
 function close() {
-  let newName = ref("");
-  let newRole = ref("");
-  let newPassword = ref("");
+  newName = ref("");
+  newRole = ref("");
+  newPassword = ref("");
   loading.value = false;
   delloading.value = false;
   

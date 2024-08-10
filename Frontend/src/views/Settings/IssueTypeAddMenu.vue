@@ -17,7 +17,7 @@ let showRequired = ref(false);
 let loading = ref(false);
 
 onMounted(() => {
-  let issueReq = axios.get(backendUrl + "/api/ticket/getissuevariants", {withCredentials: true}).then(response => {
+  axios.get(backendUrl + "/api/ticket/getissuevariants", {withCredentials: true}).then(response => {
     issueTypes.value = response.data;
   }).catch(error => {
     console.log(error)
@@ -46,7 +46,7 @@ function submit() {
     repair: repair.value
   };
   loading.value = true;
-  let req = axios.post(backendUrl + "/api/ticket/addissuetype", data, {withCredentials:true}).then(response => {
+  axios.post(backendUrl + "/api/ticket/addissuetype", data, {withCredentials:true}).then(() => {
     close();
   }).catch(error => {
     loading.value = false;
@@ -83,7 +83,7 @@ function close() {
       <hr class="my-2">
       <p class="text-left">Issue <span v-if="showRequired" class="text-red-500">Required</span></p>
       <select v-model="issue" class="text-green-500 p-1 w-full bg-gray-200 rounded-lg">
-        <option v-for="(issue, index) in issueTypes" :value="issue">{{issue}}</option>
+        <option v-for="(issue) in issueTypes" :value="issue">{{issue}}</option>
         <option value="custom" class="font-bold">New</option>
       </select>
       <template v-if="issue==='custom'">

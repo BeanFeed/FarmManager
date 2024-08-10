@@ -83,9 +83,9 @@ export const router = createRouter({
 router.beforeEach((to,from) => {
     if(from.name !== 'Login') {
 
-        let req = axios.get(backendUrl + "/api/user/me", {withCredentials: true}).then(response => {
+        axios.get(backendUrl + "/api/user/me", {withCredentials: true}).then(response => {
             if((to.name === 'Users' && response.data.role !== "Owner") || (to.name === 'Options' && !hasPerm(response.data, 'Head Technician')) || (to.name === 'Tickets' && !hasPerm(response.data, 'Technician'))) return false;
-        }).catch(error => {
+        }).catch(() => {
             return {name: 'Login'}
         });
 

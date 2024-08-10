@@ -23,7 +23,7 @@ let modelOptions = ref([]);
 let showRequired = ref(false);
 
 onMounted(() => {
-  let locationReq =  axios.get(backendUrl + "/api/ticket/getlocations", {withCredentials: true}).then(response => {
+  axios.get(backendUrl + "/api/ticket/getlocations", {withCredentials: true}).then(response => {
     locationOptions.value = response.data;
   }).catch(error => {
     toast(error.response.data.length < 30 ? error.response.data : error.body, {
@@ -38,7 +38,7 @@ onMounted(() => {
     }
   });
   
-  let printerBrandReq = axios.get(backendUrl + "/api/printer/getprintertypevariants", {withCredentials: true}).then(response => {
+  axios.get(backendUrl + "/api/printer/getprintertypevariants", {withCredentials: true}).then(response => {
     printerBrands.value = response.data;
   }).catch(error => {
     toast(error.response.data.length < 30 ? error.response.data : error.body, {
@@ -57,7 +57,7 @@ onMounted(() => {
 watch(brand, () => {
   if (brand.value === "" || brand.value === "custom") return;
   
-  let printerReq = axios.get(backendUrl + "/api/printer/getprintertypevariants?modelByBrand=" + brand.value, {withCredentials: true}).then(response => {
+  axios.get(backendUrl + "/api/printer/getprintertypevariants?modelByBrand=" + brand.value, {withCredentials: true}).then(response => {
     modelOptions.value = response.data;
   }).catch(error => {
     toast(error.response.data.length < 30 ? error.response.data : error.body, {
@@ -94,7 +94,7 @@ function submit() {
     return;
   }
 
-  let req = axios.post(backendUrl + "/api/printer/addprinter", data, {withCredentials: true}).then(response => {
+  axios.post(backendUrl + "/api/printer/addprinter", data, {withCredentials: true}).then(() => {
     close();
   }).catch(error => {
     loading.value = false;
@@ -151,17 +151,17 @@ function close() {
       <hr class="my-2">
       <p class="text-left">Brand <span v-if="showRequired" class="text-red-500">Required</span></p>
       <select v-model="brand" class="text-green-500 p-1 bg-gray-200 rounded-lg w-full">
-        <option v-for="(brand, index) in printerBrands" :value="brand">{{brand}}</option>
+        <option v-for="(brand) in printerBrands" :value="brand">{{brand}}</option>
       </select>
       <hr class="my-2">
       <p class="text-left">Model <span v-if="showRequired" class="text-red-500">Required</span></p>
       <select v-model="model" class="text-green-500 p-1 bg-gray-200 rounded-lg w-full">
-        <option v-for="(model, index) in modelOptions" :value="model">{{model}}</option>
+        <option v-for="(model) in modelOptions" :value="model">{{model}}</option>
       </select>
       <hr class="my-2">
       <p class="text-left">Location <span v-if="showRequired" class="text-red-500">Required</span></p>
       <select v-model="locationName" class="text-green-500 p-1 bg-gray-200 rounded-lg w-full">
-        <option v-for="(location, index) in locationOptions" :value="location.name">{{location.name}}</option>
+        <option v-for="(location) in locationOptions" :value="location.name">{{location.name}}</option>
       </select>
       <hr class="my-2">
       <p class="text-left">Purchase Date <span v-if="showRequired" class="text-red-500">Required</span></p>

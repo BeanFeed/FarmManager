@@ -1,5 +1,5 @@
 <script setup>
-import {onMounted, ref, watch} from "vue";
+import {ref, watch} from "vue";
 import {router} from "../../router.js";
 import {useRoute} from "vue-router";
 import {useWindowSize} from "@vueuse/core";
@@ -7,7 +7,6 @@ import {UserStore} from "../../store/UserStore.js";
 import {hasPerm} from "../../utils.js";
 import axios from "axios";
 import {backendUrl} from "../../main.js";
-import {toast} from "vue3-toastify";
 let route = useRoute()
 let isOpenState = ref(false)
 const { width } = useWindowSize()
@@ -46,7 +45,7 @@ watch(userStore, () => {
 
 function logout() {
   userStore.clearUser();
-  let req = axios.post(backendUrl + "/api/user/logout", {}, {withCredentials: true}).then().catch();
+  axios.post(backendUrl + "/api/user/logout", {}, {withCredentials: true}).then().catch();
   router.push("/login")
 }
 </script>
@@ -108,6 +107,12 @@ function logout() {
 
 .listHeight {
   max-height: calc(100vh - 6rem);
-  max-height: calc(-webkit-fill-available - 6rem);
+}
+
+@media (pointer: none), (pointer: coarse) {
+  .listHeight {
+    /*noinspection CssInvalidPropertyValue*/
+    max-height: calc(-webkit-fill-available - 6rem);
+  }
 }
 </style>

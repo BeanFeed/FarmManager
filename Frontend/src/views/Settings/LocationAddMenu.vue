@@ -17,7 +17,7 @@ function submit() {
     return;
   }
   loading.value = true;
-  let req = axios.post(backendUrl + "/api/ticket/addlocation?Name=" + locationName.value, {}, {withCredentials: true}).then(response => {
+  axios.post(backendUrl + "/api/ticket/addlocation?Name=" + locationName.value, {}, {withCredentials: true}).then(() => {
     close();
   }).catch(error => {
     loading.value = false;

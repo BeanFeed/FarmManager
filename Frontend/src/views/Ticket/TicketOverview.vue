@@ -94,7 +94,7 @@ function refreshTickets(){
 
 function closeTicket(ticket) {
   console.log(ticket);
-  let issueReq = axios.get(backendUrl + "/api/ticket/getissuevariants?repairByIssue=" + ticket.issue, {withCredentials: true}).then(response => {
+  axios.get(backendUrl + "/api/ticket/getissuevariants?repairByIssue=" + ticket.issue, {withCredentials: true}).then(response => {
     
     issueTypes.value = response.data;
     
@@ -131,7 +131,7 @@ function submitCloseTicket() {
   
   loading.value = true;
   
-  let req = axios.post(backendUrl + "/api/ticket/closeticket", data, {withCredentials: true}).then(response => {
+  axios.post(backendUrl + "/api/ticket/closeticket", data, {withCredentials: true}).then(() => {
     closeTicketOpen.value = false;
     let ticketLoadingToast = toast.loading("Loading tickets...", {
       transition: "bounce",
@@ -219,7 +219,7 @@ function closeCloseTicket() {
             </tr>
             </thead>
             <tbody>
-            <tr v-for="(ticket, index) in tickets" class="border-b border-gray-200">
+            <tr v-for="(ticket) in tickets" class="border-b border-gray-200">
               <td class="whitespace-nowrap px-6 py-4">{{ ticket.ticketId }}</td>
               <td class="whitespace-nowrap px-6 py-4">{{ ticket.printer }}</td>
               <td class="whitespace-nowrap px-6 py-4">{{ ticket.issue }}</td>
@@ -258,7 +258,7 @@ function closeCloseTicket() {
         <hr class="my-2">
         <p class="text-left">Repair</p>
         <select v-model="repair" class="text-green-500 p-1 bg-gray-200 rounded-lg">
-          <option v-for="(issue, index) in issueTypes" :value="issue">{{issue}}</option>
+          <option v-for="(issue) in issueTypes" :value="issue">{{issue}}</option>
           <option value="custom">Custom</option>
         </select>
         <template v-if="repair==='custom'">

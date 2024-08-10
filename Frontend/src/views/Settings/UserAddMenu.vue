@@ -30,7 +30,7 @@ function submit() {
     password: password.value
   }
   loading.value = true;
-  let req = axios.post(backendUrl + "/api/user/createuser", data, {withCredentials: true}).then(response => {
+  axios.post(backendUrl + "/api/user/createuser", data, {withCredentials: true}).then(() => {
     close();
   }).catch(error => {
     loading.value = false;

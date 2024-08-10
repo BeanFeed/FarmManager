@@ -27,7 +27,7 @@ let loading = ref(false);
 onMounted(() => {
   if (props.printerName !== null) printerName.value = props.printerName;
   else {
-    let printerReq = axios.get(backendUrl + "/api/printer/getprinters", {withCredentials: true}).then(response => {
+    axios.get(backendUrl + "/api/printer/getprinters", {withCredentials: true}).then(response => {
       printerOptions.value = response.data;
     }).catch(error => {
       toast(error.response.data.length < 30 ? error.response.data : error.body, {
@@ -43,7 +43,7 @@ onMounted(() => {
     });
   }
   
-  let issueReq = axios.get(backendUrl + "/api/ticket/getissuevariants", {withCredentials: true}).then(response => {
+  axios.get(backendUrl + "/api/ticket/getissuevariants", {withCredentials: true}).then(response => {
     issueTypes.value = response.data;
   }).catch(error => {
     console.log(error)
@@ -73,7 +73,7 @@ function submitTicket() {
   issue = ref("");
   issueCustom = ref("");
   loading.value = true;
-  let req = axios.post(backendUrl + "/api/ticket/openticket", data, {withCredentials: true}).then(response => {
+  axios.post(backendUrl + "/api/ticket/openticket", data, {withCredentials: true}).then(() => {
     printerName = ref("");
     issue = ref("");
     issueCustom = ref("");
@@ -122,14 +122,14 @@ function cancel() {
         <template v-if="props.printerName === null">
           <p class="text-left">Printer <span v-if="showRequired" class="text-red-500">Required</span></p>
           <select v-model="printerName" class="text-green-500 p-1 bg-gray-200 rounded-lg">
-            <option v-for="(printer, index) in printerOptions" :value="printer.name">{{printer.name}}</option>
+            <option v-for="(printer) in printerOptions" :value="printer.name">{{printer.name}}</option>
           </select>
 
           <hr class="my-2">
         </template>
         <p class="text-left">Issue <span v-if="showRequired" class="text-red-500">Required</span></p>
         <select v-model="issue" class="text-green-500 p-1 bg-gray-200 rounded-lg">
-          <option v-for="(issue, index) in issueTypes" :value="issue">{{issue}}</option>
+          <option v-for="(issue) in issueTypes" :value="issue">{{issue}}</option>
           <option value="custom">Custom</option>
         </select>
         <template v-if="issue==='custom'">

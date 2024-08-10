@@ -29,11 +29,11 @@ let loading = ref(false);
 let delloading = ref(false);
 
 onMounted(() => {
-  let issueReq = axios.get(backendUrl + "/api/ticket/getissuevariants" ,{withCredentials: true}).then(response => {
+  axios.get(backendUrl + "/api/ticket/getissuevariants" ,{withCredentials: true}).then(response => {
     issueTypes.value = response.data;
     
     if (issueTypes.value.includes(props.ticket.issue)) {
-      let repairReq = axios.get(backendUrl + "/api/ticket/getissuevariants?repairByIssue=" + props.ticket.issue, {withCredentials: true}).then(response => {
+      axios.get(backendUrl + "/api/ticket/getissuevariants?repairByIssue=" + props.ticket.issue, {withCredentials: true}).then(response => {
         repairTypes.value = response.data;
       }).catch(error => {
         toast(error.response.data.length < 30 ? error.response.data : error.body, {
@@ -59,7 +59,7 @@ onMounted(() => {
     }
   });
 
-  let usersReq = axios.get(backendUrl + "/api/user/getusers" ,{withCredentials: true}).then(response => {
+  axios.get(backendUrl + "/api/user/getusers" ,{withCredentials: true}).then(response => {
     allUsers.value = response.data;
     for (let i = 0; i < response.data.length; i++) {
       if (hasPerm(response.data[i], "Technician")) allTechs.value[allTechs.value.length] = response.data[i];
@@ -79,9 +79,9 @@ onMounted(() => {
   });
 })
 
-watch(issue, (value, oldValue) => {
+watch(issue, (value) => {
   if (value !== "custom") {
-    let repairReq = axios.get(backendUrl + "/api/ticket/getissuevariants?repairByIssue=" + value, {withCredentials: true}).then(response => {
+    axios.get(backendUrl + "/api/ticket/getissuevariants?repairByIssue=" + value, {withCredentials: true}).then(response => {
       repairTypes.value = response.data;
     }).catch(error => {
       toast(error.response.data.length < 30 ? error.response.data : error.body, {
@@ -131,7 +131,7 @@ function submit() {
   data.id = props.ticket.ticketId;
   loading.value = true;
   
-  let req = axios.post(backendUrl + "/api/ticket/modifyticket", data, {withCredentials: true}).then(response => {
+  axios.post(backendUrl + "/api/ticket/modifyticket", data, {withCredentials: true}).then(() => {
     openedBy = ref(null);
     technician = ref(null);
     issue = ref("");
@@ -168,7 +168,7 @@ function deleteTicket() {
   }
   
   delloading.value = true;
-  let req = axios.delete(backendUrl + "/api/ticket/deleteticket?id=" + props.ticket.ticketId,{withCredentials: true}).then(response => {
+  axios.delete(backendUrl + "/api/ticket/deleteticket?id=" + props.ticket.ticketId,{withCredentials: true}).then(() => {
     openedBy = ref(null);
     technician = ref(null);
     issue = ref("");
@@ -205,19 +205,19 @@ function deleteTicket() {
       <div class="flex flex-col">
         <p class="text-left">Opened By</p>
         <select v-model="openedBy" class="text-green-500 p-1 bg-gray-200 rounded-lg">
-          <option v-for="(user, index) in allUsers" :value="user.id">{{user.name}}</option>
+          <option v-for="(user) in allUsers" :value="user.id">{{user.name}}</option>
         </select>
         <hr class="my-2">
         <template v-if="ticket.dateClosed !== null && !reopen">
           <p class="text-left">Technician</p>
           <select v-model="technician" class="text-green-500 p-1 bg-gray-200 rounded-lg">
-            <option v-for="(tech, index) in allTechs" :value="tech.id">{{tech.name}}</option>
+            <option v-for="(tech) in allTechs" :value="tech.id">{{tech.name}}</option>
           </select>
           <hr class="my-2">
         </template>
         <p class="text-left">Issue <span v-if="showRequired" class="text-red-500">Required</span></p>
         <select v-model="issue" class="text-green-500 p-1 bg-gray-200 rounded-lg">
-          <option v-for="(issue, index) in issueTypes" :value="issue">{{issue}}</option>
+          <option v-for="(issue) in issueTypes" :value="issue">{{issue}}</option>
           <option value="custom">Custom</option>
         </select>
         <template v-if="issue==='custom'">
@@ -233,7 +233,7 @@ function deleteTicket() {
         <template v-if="ticket.dateClosed !== null && !reopen">
           <p class="text-left">Repair</p>
           <select v-model="repair" class="text-green-500 p-1 bg-gray-200 rounded-lg">
-            <option v-for="(repair, index) in repairTypes" :value="repair">{{repair}}</option>
+            <option v-for="(repair) in repairTypes" :value="repair">{{repair}}</option>
             <option value="custom">Custom</option>
           </select>
           <template v-if="repair==='custom'">

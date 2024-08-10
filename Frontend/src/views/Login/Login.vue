@@ -1,8 +1,6 @@
 <script setup>
-import TextInput from "../../components/TextInput.vue";
 import {onMounted, ref, watch} from "vue";
 import axios from "axios";
-import {useBrowserLocation} from "@vueuse/core";
 import {backendUrl} from "../../main.js";
 import {UserStore} from "../../store/UserStore.js";
 import {toast} from "vue3-toastify";
@@ -26,9 +24,9 @@ function login() {
     password: password.value,
   }
   
-  let req = axios.post(backendUrl + "/api/user/login", data, {withCredentials: true}).then(response => {
+  axios.post(backendUrl + "/api/user/login", data, {withCredentials: true}).then(() => {
     loading.value = false;
-    let req2 = axios.get(backendUrl + "/api/user/me", {withCredentials: true}).then(res => {
+    axios.get(backendUrl + "/api/user/me", {withCredentials: true}).then(res => {
       loading.value = false;
       userStore.setUser({
         name: res.data.name,
