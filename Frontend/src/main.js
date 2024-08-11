@@ -17,13 +17,13 @@ const location = useBrowserLocation().value;
 
 function isDomain(str) {
     // Regular expression to match domain names
-    const domainRegex = /^[a-zA-Z0-9]+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,}$/;
+    const domainRegex = /^[a-zA-Z0-9]+([\-.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,}$/;
 
     // Test the string against the regex
     return domainRegex.test(str);
 }
 
-export const backendUrl = !isDomain(location.hostname) ? location.protocol + "//" + location.hostname + (location.protocol === "http:" ? ":5001" : ":5000") : location.origin
+export const backendUrl = import.meta.env.DEV ? !isDomain(location.hostname) ? location.protocol + "//" + location.hostname + (location.protocol === "http:" ? ":5001" : ":5000") : location.origin : location.origin;
 //export const backendUrl = location.origin;
 console.log(backendUrl);
 
