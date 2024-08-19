@@ -10,6 +10,7 @@ import SettingsOptions from "./views/Settings/SettingsOptions.vue";
 import axios from "axios";
 import {backendUrl} from "./main.js";
 import {hasPerm} from "./utils.js";
+import {UserStore} from "./store/UserStore.js";
 
 
 
@@ -86,6 +87,7 @@ router.beforeEach((to,from) => {
         axios.get(backendUrl + "/api/user/me", {withCredentials: true}).then(response => {
             if((to.name === 'Users' && response.data.role !== "Owner") || (to.name === 'Options' && !hasPerm(response.data, 'Head Technician')) || (to.name === 'Tickets' && !hasPerm(response.data, 'Technician'))) return false;
         }).catch(() => {
+            UserStore().clearUser();
             return {name: 'Login'}
         });
 

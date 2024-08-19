@@ -23,8 +23,8 @@ function isDomain(str) {
     return domainRegex.test(str);
 }
 
-export const backendUrl = import.meta.env.DEV ? !isDomain(location.hostname) ? location.protocol + "//" + location.hostname + (location.protocol === "http:" ? ":5001" : ":5000") : location.origin : location.origin;
-//export const backendUrl = location.origin;
+//export const backendUrl = import.meta.env.DEV ? !isDomain(location.hostname) ? location.protocol + "//" + location.hostname + (location.protocol === "http:" ? ":5001" : ":5000") : location.origin : location.origin;
+export const backendUrl = location.origin;
 console.log(backendUrl);
 
 createApp(App).use(router).use(pinia).mount('#app')
