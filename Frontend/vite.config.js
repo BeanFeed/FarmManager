@@ -9,7 +9,6 @@ export default defineConfig({
     port: 3000
   },
   build: {
-    outDir: "../Backend/FarmManagerBackend/wwwroot",
     emptyOutDir: true
   }
 })

@@ -19,12 +19,17 @@ let route = useRoute();
 let userStore = UserStore();
 
 onMounted(() => {
+  
+  getPrinters()
+});
+
+function getPrinters() {
   let loadingToast = toast.loading("Loading printers...", {
     transition: "bounce",
     closeOnClick: false,
     pauseOnHover: false
   });
-  let req = axios.get(backendUrl + "/api/printer/getprinters", {withCredentials: true}).then(response => {
+  let req = axios.get(backendUrl + "/api/printer/getprinters?byroom=" + searchOpt.value.byroom, {withCredentials: true}).then(response => {
     printers.value = response.data;
     toast.update(loadingToast, {"closeOnClick": true, render: "Loaded printers", type: "success", isLoading: false, autoClose: 2000});
   }).catch(error => {
@@ -34,10 +39,15 @@ onMounted(() => {
       router.push('/login');
     }
   })
-});
+}
 
-function search(name) {
-  axios.get(backendUrl + "/api/printer/getprinters?name=" + name, {withCredentials: true}).then(response => {
+const searchOpt = ref({
+  byroom: false,
+  search: null
+})
+
+function search() {
+  axios.get(backendUrl + "/api/printer/getprinters?name=" + searchOpt.value.search + "&byroom=" + searchOpt.value.byroom, {withCredentials: true}).then(response => {
     printers.value = response.data;
   }).catch(error => {
     console.log(error);
@@ -67,7 +77,7 @@ function closeModifyPrinter() {
   openModify.value = false
   modifyingPrinter.value = {};
 
-  axios.get(backendUrl + "/api/printer/getprinters", {withCredentials: true}).then(response => {
+  axios.get(backendUrl + "/api/printer/getprinters?byroom=" + searchOpt.value.byroom, {withCredentials: true}).then(response => {
     printers.value = response.data;
   }).catch(error => {
     console.log(error);
@@ -87,7 +97,7 @@ function closeModifyPrinter() {
 function closeNewPrinter() {
   newPrinter.value = false;
 
-  axios.get(backendUrl + "/api/printer/getprinters", {withCredentials: true}).then(response => {
+  axios.get(backendUrl + "/api/printer/getprinters?byroom=" + searchOpt.value.byroom, {withCredentials: true}).then(response => {
     printers.value = response.data;
   }).catch(error => {
     console.log(error);
@@ -109,7 +119,13 @@ function closeNewPrinter() {
 <div class="fixHeight w-screen flex items-center justify-center p-3">
   <div class="w-[75vw]">
     <div class="ml:flex items-center">
-      <SearchBar  @update="args => search(args.value)" />
+      <SearchBar  @update="args => {searchOpt.search = args.value; search(searchOpt)}" />
+      <div @click="searchOpt.byroom = !searchOpt.byroom; getPrinters()" class="mr-6 ml:ml-6 flex items-center cursor-pointer">
+        <div class="flex items-center justify-center h-6 w-6 bg-green-500 transition-colors ease-in-out duration-500 rounded-md border-2 border-green-500 cursor-pointer mr-1" :class="searchOpt.byroom ? 'bg-opacity-100' : 'bg-opacity-0'">
+          <i class="bi bi-check-lg text-white transition-opacity ease-in-out duration-200" :class="searchOpt.byroom ? 'opacity-100' : 'opacity-0'"></i>
+        </div>
+        <p>Sort By Room</p>
+      </div>
       <a @click="newPrinter = true" class="bg-green-500 hover:bg-green-600 text-white hover:text-white cursor-pointer h-10 mx-1 mt-2 ml:mt-0 px-3 py-1 rounded-xl flex items-center justify-center">
         Add Printer
       </a>

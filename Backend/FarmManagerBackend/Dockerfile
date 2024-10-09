@@ -1,8 +1,11 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
-#RUN apt-get update
-#RUN apt-get install nodejs -y
-#RUN apt-get install npm -y
-#RUN npm install -g http-server
+﻿FROM node:20 AS site-build
+WORKDIR /src
+COPY Frontend/package.json .
+RUN npm install
+COPY Frontend/. .
+RUN npm run build
+
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 
 EXPOSE 5000
@@ -13,6 +16,7 @@ WORKDIR /src
 COPY ["Backend/FarmManagerBackend/FarmManagerBackend.csproj", "FarmManagerBackend/"]
 RUN dotnet restore "FarmManagerBackend/FarmManagerBackend.csproj"
 COPY ["./Backend", "."]
+COPY --from=site-build /src/dist/. /src/FarmManagerBackend/wwwroot/.
 WORKDIR "/src/FarmManagerBackend"
 RUN dotnet build "FarmManagerBackend.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
@@ -26,5 +30,4 @@ WORKDIR /app
 #RUN mkdir site
 RUN mkdir data
 COPY --from=publish /app/publish .
-#COPY --from=site-build /build/dist/. /app/site
 ENTRYPOINT ["dotnet","FarmManagerBackend.dll"]

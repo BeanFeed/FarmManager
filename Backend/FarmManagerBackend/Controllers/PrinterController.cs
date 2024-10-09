@@ -134,10 +134,11 @@ public class PrinterController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetPrinters(string? name)
+    public async Task<IActionResult> GetPrinters(string? name, bool? byRoom)
     {
         try
         {
+            if(byRoom is true) return Ok(await _printerService.GetPrinters(name, byRoom.Value));
             return Ok(await _printerService.GetPrinters(name));
         }
         catch (PrinterException e)

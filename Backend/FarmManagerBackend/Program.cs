@@ -48,7 +48,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddSpaStaticFiles(configuration =>
 {
-    configuration.RootPath = "wwwroot";
+    configuration.RootPath = "wwwroot/";
 });
 
 var app = builder.Build();
@@ -58,7 +58,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.UseCors("Main");
+    //app.UseCors("Main");
 }
 
 /*
@@ -77,13 +77,11 @@ app.UseEndpoints(e =>
 {
     e.MapControllers();
 });
+
 app.UseSpaStaticFiles();
 app.UseSpa(spa =>
 {
-    if (app.Environment.IsDevelopment())
-    {
-        spa.UseProxyToSpaDevelopmentServer("http://localhost:3000");
-    }
+    spa.Options.SourcePath = "wwwroot/";
 });
 
 app.Run();

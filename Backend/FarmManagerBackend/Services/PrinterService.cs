@@ -148,13 +148,25 @@ public class PrinterService
         return printer;
     }
 
-    public async Task<Printer[]> GetPrinters(string? name)
+    public async Task<Printer[]> GetPrinters(string? name, bool byRoom = false)
     {
-        Printer[] printers;
-        if (name is null) printers = await _managerContext.Printers.Include(printer => printer.Location).ToArrayAsync();
-        else printers = await _managerContext.Printers.Where(x => x.Name.Contains(name))
-            .Include(printer => printer.Location).ToArrayAsync();
-        return printers;
+        if (byRoom)
+        {
+            Printer[] printers;
+            if (name is null) printers = await _managerContext.Printers.Include(printer => printer.Location).OrderBy(x => x.Location.Name).ThenBy(x => x.Name).ToArrayAsync();
+            else printers = await _managerContext.Printers.Where(x => x.Name.Contains(name))
+                .Include(printer => printer.Location).OrderBy(x => x.Location.Name).ThenBy(x => x.Name).ToArrayAsync();
+            return printers;
+        }
+        else
+        {
+            Printer[] printers;
+            if (name is null) printers = await _managerContext.Printers.Include(printer => printer.Location).OrderBy(x => x.Name).ToArrayAsync();
+            else printers = await _managerContext.Printers.Where(x => x.Name.Contains(name))
+                .Include(printer => printer.Location).OrderBy(x => x.Name).ToArrayAsync();
+            return printers;
+        }
+        
     }
     
     private async Task CloseOpenTickets(string printerName)

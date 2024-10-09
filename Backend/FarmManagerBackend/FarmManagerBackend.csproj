@@ -31,12 +31,4 @@
     <ItemGroup>
       <Folder Include="wwwroot\" />
     </ItemGroup>
-
-
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="wwwroot\assets\bootstrap-icons-BOrJxbIo.woff" />
-      <_ContentIncludedByDefault Remove="wwwroot\assets\bootstrap-icons-BtvjY1KL.woff2" />
-      <_ContentIncludedByDefault Remove="wwwroot\assets\index-BMCleuca.css" />
-      <_ContentIncludedByDefault Remove="wwwroot\assets\index-CC58jawD.js" />
-    </ItemGroup>
 </Project>
